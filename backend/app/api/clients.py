@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/clients", tags=["clients"])
 
 
+@router.post("", response_model=ClientResponse, status_code=201)
 @router.post("/", response_model=ClientResponse, status_code=201)
 async def create_client(client: ClientCreate):
     """
@@ -43,6 +44,7 @@ async def create_client(client: ClientCreate):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("", response_model=ClientListResponse)
 @router.get("/", response_model=ClientListResponse)
 async def list_clients(
     tenant_id: str = Query(..., description="Tenant UUID"),
