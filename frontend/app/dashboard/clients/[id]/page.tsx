@@ -76,6 +76,7 @@ export default function ClientDetailPage() {
                 </h2>
                 <ConversationHistory
                   messages={client.onboarding_data.messages}
+                  clientName={client.practice_name}
                 />
               </div>
             )}

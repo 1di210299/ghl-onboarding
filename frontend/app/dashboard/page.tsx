@@ -6,7 +6,7 @@ import { supabase, type Client } from '@/lib/supabase'
 import { ClientsTable } from '@/components/clients-table'
 import { SearchBar } from '@/components/search-bar'
 import { Button } from '@/components/ui/button'
-import { Download, Plus } from 'lucide-react'
+import { Download, Plus, Copy, Check } from 'lucide-react'
 import { exportToCSV } from '@/lib/utils'
 
 // Demo tenant ID - in production, get from auth
@@ -18,6 +18,7 @@ export default function DashboardPage() {
   const [terminologyFilter, setTerminologyFilter] = useState<
     string | undefined
   >()
+  const [copied, setCopied] = useState(false)
 
   // Fetch clients from Backend API
   const { data: clients, isLoading, error } = useQuery({
@@ -53,7 +54,6 @@ export default function DashboardPage() {
   if (error) {
     console.error('Query error:', error)
   }
-
   const handleExport = () => {
     if (!clients) return
 
@@ -69,9 +69,10 @@ export default function DashboardPage() {
     exportToCSV(exportData, 'clients-export')
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto py-8 px-4">
+  const handleCopyOnboardingLink = async () => {
+    const onboardingUrl = `${window.location.origin}/onboarding`
+    try {
+      await navigator.clipboard.writeText(onboardingUrl)
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
@@ -82,18 +83,48 @@ export default function DashboardPage() {
                 Manage and monitor healthcare practice onboarding
               </p>
             </div>
-            <a
-              href="https://app.thepracticesuite.com/v2/location/huSZMYAzw9lici66T2Ej/contacts/smart_list/All"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
-            >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex gap-3">
+              <Button
+                onClick={handleCopyOnboardingLink}
+                variant="outline"
+                className="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium shadow-sm"
               >
+                {copied ? (
+                  <>
+                    <Check className="w-5 h-5 mr-2" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-5 h-5 mr-2" />
+                    Copy Onboarding Link
+                  </>
+                )}
+              </Button>
+              <a
+                href="https://app.thepracticesuite.com/v2/location/huSZMYAzw9lici66T2Ej/contacts/smart_list/All"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+              >
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+                View in GoHighLevel
+              </a>
+            </div>
+          </div>
+        </div>>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
