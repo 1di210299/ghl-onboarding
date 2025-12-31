@@ -37,10 +37,15 @@ yarn-error.log*
 
 # Environment
 .env
+.env.*
 .env.local
+.env.production
+.env.development
 .env.development.local
 .env.test.local
 .env.production.local
+backend/.env
+frontend/.env.local
 
 # IDE
 .vscode/

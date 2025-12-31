@@ -72,12 +72,37 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto py-8 px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Client Dashboard
-          </h1>
-          <p className="text-gray-600">
-            Manage and monitor healthcare practice onboarding
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Client Dashboard
+              </h1>
+              <p className="text-gray-600">
+                Manage and monitor healthcare practice onboarding
+              </p>
+            </div>
+            <a
+              href="https://app.thepracticesuite.com/v2/location/huSZMYAzw9lici66T2Ej/contacts/smart_list/All"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+            >
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
+              </svg>
+              Ver en GoHighLevel
+            </a>
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow">
