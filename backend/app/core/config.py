@@ -35,9 +35,11 @@ class Settings(BaseSettings):
     # n8n
     n8n_webhook_url: str
     
-    # GoHighLevel (for reference)
+    # GoHighLevel Integration
     ghl_api_key: Optional[str] = None
-    ghl_api_url: str = "https://rest.gohighlevel.com/v1"
+    ghl_location_id: Optional[str] = None
+    ghl_workflow_id: Optional[str] = None
+    ghl_api_url: str = "https://services.leadconnectorhq.com"
     
     # JWT
     jwt_secret: str

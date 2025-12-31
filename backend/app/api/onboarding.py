@@ -3,7 +3,7 @@ Onboarding API endpoints.
 Handles the conversational onboarding flow.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from app.models import (
     OnboardingStartRequest,
@@ -13,6 +13,7 @@ from app.models import (
     OnboardingStatusResponse
 )
 from app.services.workflow import get_workflow
+from app.services.ghl_integration import GHLIntegrationService
 from app.core.database import supabase
 from app.core.config import settings
 from langchain_openai import ChatOpenAI
@@ -183,6 +184,46 @@ async def send_message(request: OnboardingMessageRequest):
             if k.startswith('q') and '_' in k and v is not None
         }
         
+        # Check if onboarding is completed
+        is_completed = updated_state.get("is_completed", False)
+        
+        # If completed, sync to GHL in background
+        if is_completed and settings.ghl_api_key and settings.ghl_location_id:
+            logger.info(f"Onboarding completed for session {session_id}, syncing to GHL...")
+            # Sync to GHL in background (don't block response)
+            from app.services.ghl_integration import GHLIntegrationService
+            
+            async def sync_to_ghl():
+                try:
+                    ghl_service = GHLIntegrationService(
+                        api_key=settings.ghl_api_key,
+                        location_id=settings.ghl_location_id
+                    )
+                    
+                    result = await ghl_service.sync_onboarding_to_ghl(
+                        onboarding_data=collected_data,
+                        practice_name=current_state.get("practice_name", "Unknown Practice"),
+                        workflow_id=settings.ghl_workflow_id if hasattr(settings, 'ghl_workflow_id') else None
+                    )
+                    
+                    if result["success"]:
+                        # Update database with GHL contact ID
+                        supabase.service.table("clients").update({
+                            "ghl_contact_id": result["contact_id"],
+                            "ghl_synced_at": result["synced_at"]
+                        }).eq("id", current_state["client_id"]).execute()
+                        
+                        logger.info(f"Successfully synced to GHL. Contact ID: {result['contact_id']}")
+                    else:
+                        logger.error(f"Failed to sync to GHL: {result.get('error')}")
+                
+                except Exception as e:
+                    logger.error(f"Error in GHL sync: {e}", exc_info=True)
+            
+            # Fire and forget (don't wait for GHL sync)
+            import asyncio
+            asyncio.create_task(sync_to_ghl())
+        
         logger.info(f"Processed message for session: {session_id}, step: {updated_state['current_step']}")
         
         return OnboardingMessageResponse(
@@ -191,7 +232,7 @@ async def send_message(request: OnboardingMessageRequest):
             current_step=updated_state["current_step"],
             current_stage=updated_state.get("current_stage"),
             total_questions=48,
-            is_completed=updated_state.get("is_completed", False),
+            is_completed=is_completed,
             collected_data=collected_data
         )
         
