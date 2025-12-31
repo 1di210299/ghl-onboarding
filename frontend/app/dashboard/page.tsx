@@ -31,7 +31,8 @@ export default function DashboardPage() {
       if (statusFilter) params.append('status', statusFilter)
       if (terminologyFilter) params.append('terminology', terminologyFilter)
 
-      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/clients?${params}`
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
+      const url = `${API_URL}/clients?${params}`
       console.log('Fetching clients from:', url)
       
       const response = await fetch(url)
