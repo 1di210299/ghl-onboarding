@@ -2,13 +2,15 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
-import { supabase, type Client } from '@/lib/supabase'
+import { type Client } from '@/lib/supabase'
 import { ClientCard } from '@/components/client-card'
 import { ConversationHistory } from '@/components/conversation-history'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { formatDate } from '@/lib/utils'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
 export default function ClientDetailPage() {
   const params = useParams()
@@ -17,13 +19,11 @@ export default function ClientDetailPage() {
   const { data: client, isLoading } = useQuery({
     queryKey: ['client', clientId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('clients')
-        .select('*')
-        .eq('id', clientId)
-        .single()
-
-      if (error) throw error
+      const response = await fetch(`${API_URL}/clients/${clientId}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch client')
+      }
+      const data = await response.json()
       return data as Client
     },
   })
