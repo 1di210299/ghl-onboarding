@@ -113,7 +113,7 @@ services:
     
     envs:
       - key: NEXT_PUBLIC_API_URL
-        value: ${backend.PUBLIC_URL}
+        value: /api
         scope: RUN_AND_BUILD_TIME
       
       - key: NEXT_PUBLIC_ADMIN_EMAIL
