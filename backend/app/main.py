@@ -2,12 +2,13 @@
 Main FastAPI application.
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.api import clients, onboarding, webhooks
 from app.core.config import settings
 import logging
+import time
 
 # Configure logging
 logging.basicConfig(
@@ -15,6 +16,11 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
+# Silence uvicorn access logs for health checks
+logging.getLogger("uvicorn.access").addFilter(
+    lambda record: "/health" not in record.getMessage()
+)
 
 # Create FastAPI app
 app = FastAPI(
@@ -34,10 +40,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(clients.router, prefix="/api")
-app.include_router(onboarding.router, prefix="/api")
-app.include_router(webhooks.router, prefix="/api")
+# Include routers (no prefix needed, DO routes /api to this service)
+app.include_router(clients.router)
+app.include_router(onboarding.router)
+app.include_router(webhooks.router)
 
 
 @app.get("/")
