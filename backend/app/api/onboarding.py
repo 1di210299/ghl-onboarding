@@ -17,8 +17,8 @@ from app.services.ghl_integration import GHLIntegrationService
 from app.core.database import supabase
 from app.core.config import settings
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage, HumanMessage
-from datetime import datetime
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+from datetime import datetime, timedelta
 import logging
 import uuid
 
@@ -36,11 +36,99 @@ async def start_onboarding(request: OnboardingStartRequest):
     Start a new onboarding session.
     
     Creates a client record and initializes the conversation workflow.
+    Prevents duplicate sessions for the same practice within 5 minutes.
     """
     try:
         logger.info(f"Starting onboarding for tenant: {request.tenant_id}, practice: {request.practice_name}")
         
-        # Create client record
+        # Check for recent duplicate (within last 30 seconds) to prevent double-submission
+        service_client = supabase.service
+        from datetime import timedelta
+        thirty_seconds_ago = (datetime.utcnow() - timedelta(seconds=30)).isoformat()
+        
+        existing = service_client.table("clients").select("id, created_at").eq(
+            "tenant_id", request.tenant_id
+        ).eq(
+            "practice_name", request.practice_name or "New Practice"
+        ).eq(
+            "onboarding_completed", False
+        ).gte(
+            "created_at", thirty_seconds_ago
+        ).order("created_at", desc=True).limit(1).execute()
+        
+        if existing.data:
+            logger.info(f"Found recent duplicate client, reusing: {existing.data[0]['id']}")
+            client_id = existing.data[0]["id"]
+            
+            # Generate new session for existing client
+            session_id = f"sess_{uuid.uuid4().hex[:16]}"
+            logger.info(f"Generated session_id for existing client: {session_id}")
+            
+            # Initialize state with all fields (same as new client flow)
+            workflow = get_workflow()
+            initial_state = {
+                "session_id": session_id,
+                "client_id": client_id,
+                "tenant_id": request.tenant_id,
+                "practice_name": request.practice_name or "New Practice",
+                "messages": [],
+                "current_step": 0,
+                "current_stage": None,
+                "is_completed": False,
+                "needs_clarification": False,
+                "last_validation_error": None,
+                # Initialize all 48 question fields to None
+                **{f"q{i}_admin": None for i in range(1, 10)},
+                **{f"q{i}_team": None for i in [10, 11]},
+                "q12_team": None,
+                "q13_tech": None,
+                "q14_marketing": None,
+                "q15_marketing": None,
+                "q16_tech": None,
+                **{f"q{i}_personality": None for i in range(17, 21)},
+                **{f"q{i}_services": None for i in [21, 22]},
+                **{f"q{i}_brand": None for i in range(23, 27)},
+                **{f"q{i}_messaging": None for i in [27, 28]},
+                **{f"q{i}_online": None for i in range(29, 34)},
+                **{f"q{i}_social": None for i in range(34, 39)},
+                **{f"q{i}_content": None for i in [39, 40]},
+                **{f"q{i}_reputation": None for i in range(41, 44)},
+                **{f"q{i}_growth": None for i in [44, 45]},
+                "q46_automation": None,
+                "q47_budget": None,
+                "q48_notes": None
+            }
+            
+            _sessions[session_id] = initial_state
+            
+            logger.info("Getting first question from workflow...")
+            result = workflow.graph.invoke(initial_state)
+            logger.info(f"Workflow result: current_step={result.get('current_step')}, messages count={len(result.get('messages', []))}")
+            
+            # Extract the bot's question from messages
+            messages = result.get("messages", [])
+            bot_messages = [m for m in messages if isinstance(m, (AIMessage, SystemMessage))]
+            
+            if bot_messages:
+                first_question = bot_messages[-1].content
+            else:
+                # Fallback: get directly from config
+                from app.services.workflow import get_question_by_index
+                question_config = get_question_by_index(0)
+                first_question = question_config['text'] if question_config else "What is your full name?"
+            
+            logger.info(f"First question for reused client: {first_question[:100]}...")
+            logger.info(f"Reusing existing onboarding session: {session_id} for client: {client_id}")
+            
+            return OnboardingStartResponse(
+                session_id=session_id,
+                client_id=client_id,
+                message=first_question,
+                current_step=0,
+                total_questions=48
+            )
+        
+        # No recent duplicate, create new client record
         client_data = {
             "tenant_id": request.tenant_id,
             "practice_name": request.practice_name or "New Practice",
@@ -52,7 +140,7 @@ async def start_onboarding(request: OnboardingStartRequest):
             }
         }
         
-        logger.info(f"Inserting client into Supabase: {client_data}")
+        logger.info(f"Inserting new client into Supabase: {client_data}")
         logger.info("About to call supabase.service...")
         try:
             logger.info("Getting service client...")
@@ -88,6 +176,7 @@ async def start_onboarding(request: OnboardingStartRequest):
             "session_id": session_id,
             "client_id": client_id,
             "tenant_id": request.tenant_id,
+            "practice_name": request.practice_name or "New Practice",
             "messages": [],
             "current_step": 0,
             "current_stage": None,
@@ -190,8 +279,10 @@ async def send_message(request: OnboardingMessageRequest):
         # If completed, sync to GHL in background
         if is_completed and settings.ghl_api_key and settings.ghl_location_id:
             logger.info(f"Onboarding completed for session {session_id}, syncing to GHL...")
-            # Sync to GHL in background (don't block response)
+            
+            # Import at function level to avoid circular imports
             from app.services.ghl_integration import GHLIntegrationService
+            import asyncio
             
             async def sync_to_ghl():
                 try:
@@ -207,13 +298,16 @@ async def send_message(request: OnboardingMessageRequest):
                     )
                     
                     if result["success"]:
-                        # Update database with GHL contact ID
-                        supabase.service.table("clients").update({
-                            "ghl_contact_id": result["contact_id"],
-                            "ghl_synced_at": result["synced_at"]
-                        }).eq("id", current_state["client_id"]).execute()
-                        
-                        logger.info(f"Successfully synced to GHL. Contact ID: {result['contact_id']}")
+                        # Update database with GHL contact ID and mark as completed
+                        try:
+                            supabase.service.table("clients").update({
+                                "ghl_contact_id": result["contact_id"],
+                                "onboarding_completed": True
+                            }).eq("id", current_state["client_id"]).execute()
+                            
+                            logger.info(f"Successfully synced to GHL. Contact ID: {result['contact_id']}")
+                        except Exception as db_error:
+                            logger.error(f"Error updating database after GHL sync: {db_error}", exc_info=True)
                     else:
                         logger.error(f"Failed to sync to GHL: {result.get('error')}")
                 
@@ -221,7 +315,6 @@ async def send_message(request: OnboardingMessageRequest):
                     logger.error(f"Error in GHL sync: {e}", exc_info=True)
             
             # Fire and forget (don't wait for GHL sync)
-            import asyncio
             asyncio.create_task(sync_to_ghl())
         
         logger.info(f"Processed message for session: {session_id}, step: {updated_state['current_step']}")

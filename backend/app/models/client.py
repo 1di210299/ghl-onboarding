@@ -113,7 +113,7 @@ class ConversationMessage(BaseModel):
     
     role: Literal["assistant", "user"] = Field(..., description="Message sender role")
     content: str = Field(..., min_length=1, description="Message content")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Message timestamp")
+    timestamp: Optional[str] = Field(None, description="Message timestamp")
     
     class Config:
         json_schema_extra = {
@@ -128,8 +128,8 @@ class ConversationMessage(BaseModel):
 class OnboardingData(BaseModel):
     """Complete onboarding conversation history and metadata."""
     
-    session_id: str = Field(..., description="Unique session identifier")
-    started_at: datetime = Field(default_factory=datetime.utcnow, description="Onboarding start time")
+    session_id: Optional[str] = Field(None, description="Unique session identifier")
+    started_at: Optional[datetime] = Field(None, description="Onboarding start time")
     completed_at: Optional[datetime] = Field(None, description="Onboarding completion time")
     messages: List[ConversationMessage] = Field(default_factory=list, description="Conversation history")
     current_step: int = Field(default=0, description="Current question step (0-10)")

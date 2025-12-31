@@ -14,6 +14,9 @@ logger = logging.getLogger(__name__)
 class GHLIntegrationService:
     """Service for integrating with GoHighLevel API."""
     
+    # Cache for custom field mappings (name -> id)
+    _custom_fields_cache: Optional[Dict[str, str]] = None
+    
     def __init__(self, api_key: str, location_id: str):
         """
         Initialize GHL integration service.
@@ -29,6 +32,105 @@ class GHLIntegrationService:
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
+    
+    async def get_custom_fields_mapping(self) -> Dict[str, str]:
+        """
+        Get mapping of custom field names to their IDs.
+        Caches the result to avoid repeated API calls.
+        
+        Returns:
+            Dictionary mapping field name (lowercase) to field ID
+        """
+        if self._custom_fields_cache is not None:
+            return self._custom_fields_cache
+        
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.get(
+                    f"{self.base_url}/custom-fields/",
+                    headers=self.headers
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    fields = data.get("customFields", [])
+                    
+                    # Create mapping: lowercase name -> field ID
+                    self._custom_fields_cache = {
+                        field["name"].lower(): field["id"]
+                        for field in fields
+                    }
+                    
+                    logger.info(f"Loaded {len(self._custom_fields_cache)} custom fields from GHL")
+                    return self._custom_fields_cache
+                else:
+                    logger.error(f"Failed to fetch custom fields: {response.text}")
+                    return {}
+        except Exception as e:
+            logger.error(f"Error fetching custom fields: {e}")
+            return {}
+    
+    async def create_custom_field(self, name: str, data_type: str = "TEXT", placeholder: str = "") -> Optional[str]:
+        """
+        Create a new custom field in GHL.
+        
+        Args:
+            name: Field name
+            data_type: Field type (TEXT, LARGE_TEXT, NUMERICAL, SINGLE_OPTIONS, etc.)
+            placeholder: Placeholder text
+            
+        Returns:
+            Field ID if created successfully, None otherwise
+        """
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    f"{self.base_url}/custom-fields/",
+                    headers=self.headers,
+                    json={
+                        "name": name,
+                        "dataType": data_type,
+                        "placeholder": placeholder
+                    }
+                )
+                
+                if response.status_code in [200, 201]:
+                    result = response.json()
+                    field_id = result.get("customField", {}).get("id")
+                    logger.info(f"Created custom field '{name}' with ID: {field_id}")
+                    
+                    # Update cache
+                    if self._custom_fields_cache is not None:
+                        self._custom_fields_cache[name.lower()] = field_id
+                    
+                    return field_id
+                else:
+                    logger.error(f"Failed to create custom field '{name}': {response.text}")
+                    return None
+        except Exception as e:
+            logger.error(f"Error creating custom field '{name}': {e}")
+            return None
+    
+    async def get_or_create_custom_field(self, name: str, data_type: str = "TEXT") -> Optional[str]:
+        """
+        Get custom field ID by name, creating it if it doesn't exist.
+        
+        Args:
+            name: Field name
+            data_type: Field type if creation is needed
+            
+        Returns:
+            Field ID
+        """
+        mapping = await self.get_custom_fields_mapping()
+        field_id = mapping.get(name.lower())
+        
+        if field_id:
+            return field_id
+        
+        # Field doesn't exist, create it
+        logger.info(f"Custom field '{name}' not found, creating it...")
+        return await self.create_custom_field(name, data_type)
     
     async def create_or_update_contact(
         self,
@@ -191,9 +293,10 @@ class GHLIntegrationService:
             logger.error(f"Error triggering workflow: {e}")
             return False
     
-    def map_onboarding_data_to_ghl(self, onboarding_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def map_onboarding_data_to_ghl(self, onboarding_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Map onboarding questions to GHL contact fields.
+        Automatically resolves custom field IDs by name.
         
         Args:
             onboarding_data: Dictionary with all onboarding answers
@@ -215,51 +318,78 @@ class GHLIntegrationService:
             "phone": onboarding_data.get('q7_suite_setup', ''),  # Q7: phone
         }
         
-        # Custom fields mapping
-        # NOTE: These keys should be the GHL custom field IDs (not names)
-        # Run: curl with GHL API to get all custom field IDs, or check GHL dashboard
-        # Format: {"custom_field_id": "value"}
-        # 
-        # Known field IDs:
-        # - v3qz5dhJBIuNJWUi1LGW: Practice Legal Name
-        # - LMVDJCOZLXnoy3jkozSv: Message (for notes)
-        # - S73hTOb1vaQu5X6YxOPf: Age
-        # 
-        # TODO: Create remaining custom fields in GHL and update these IDs
-        custom_fields = {
-            # Quick Start (Q1-Q9) - UPDATE THESE IDs WITH YOUR GHL CUSTOM FIELD IDs
-            "v3qz5dhJBIuNJWUi1LGW": onboarding_data.get('q3_legal'),  # Practice Legal Name
-            "LMVDJCOZLXnoy3jkozSv": onboarding_data.get('q48_notes'),  # Additional notes/message
-            # TODO: Create these fields in GHL Settings -> Custom Fields:
-            # - Practice EIN (TEXT): onboarding_data.get('q4_legal')
-            # - Office Address (TEXT_AREA): onboarding_data.get('q5_admin')
-            # - Home Address (TEXT_AREA): onboarding_data.get('q6_admin')
-            # - Birthday (TEXT): onboarding_data.get('q2_culture')
-            # - Phone/Texting Line (TEXT): onboarding_data.get('q8_suite_setup')
-            # - Team Members (TEXT_AREA): onboarding_data.get('q10_team')
-            # - Point Person (TEXT): onboarding_data.get('q11_client_lead')
-            # - Communication Preference (SINGLE_OPTIONS): onboarding_data.get('q12_admin')
-            # - Current EHR (TEXT): onboarding_data.get('q13_tech')
-            # - Has Marketing Team (SINGLE_OPTIONS): onboarding_data.get('q14_marketing')
-            # - Marketing Budget (TEXT): onboarding_data.get('q15_marketing')
-            # - Brand Personality (TEXT_AREA): onboarding_data.get('q17_personality')
-            # - Target Audience (TEXT_AREA): onboarding_data.get('q19_personality')
-            # - Specialties (TEXT_AREA): onboarding_data.get('q21_services')
-            # - Brand Colors (TEXT): onboarding_data.get('q23_brand')
-            # - Tagline (TEXT): onboarding_data.get('q25_brand')
-            # - Elevator Pitch (TEXT_AREA): onboarding_data.get('q27_messaging')
-            # - Website URL (TEXT): onboarding_data.get('q30_online')
-            # - Instagram Handle (TEXT): onboarding_data.get('q35_social')
-            # - Facebook Page (TEXT): onboarding_data.get('q36_social')
-            # - Growth Goals (TEXT_AREA): onboarding_data.get('q44_growth')
-            # - Monthly Budget (TEXT): onboarding_data.get('q47_budget')
-            # ... (Add more as needed - see docs/guides/GHL_INTEGRATION.md for full list)
-        }
-            # ... (Add more as needed - see docs/guides/GHL_INTEGRATION.md for full list)
+        # Get custom field mappings (name -> ID)
+        field_mapping = await self.get_custom_fields_mapping()
+        
+        # Define all custom field mappings by name
+        # These will be automatically resolved to IDs
+        custom_fields_by_name = {
+            # Quick Start (Q1-Q9)
+            "Birthday": onboarding_data.get('q2_culture'),
+            "Practice Legal Name": onboarding_data.get('q3_legal'),
+            "Practice EIN": onboarding_data.get('q4_legal'),
+            "Office Address": onboarding_data.get('q5_admin'),
+            "Home Address": onboarding_data.get('q6_admin'),
+            "Texting Line": onboarding_data.get('q8_suite_setup'),
+            
+            # Team & Tech (Q10-Q16)
+            "Team Members": onboarding_data.get('q10_team'),
+            "Point Person": onboarding_data.get('q11_client_lead'),
+            "Communication Preference": onboarding_data.get('q12_admin'),
+            "Current EHR": onboarding_data.get('q13_tech'),
+            "Has Marketing Team": onboarding_data.get('q14_marketing'),
+            "Marketing Budget": onboarding_data.get('q15_marketing'),
+            "Existing CRM": onboarding_data.get('q16_tech'),
+            
+            # Identity & Brand (Q17-Q28)
+            "Brand Personality": onboarding_data.get('q17_personality'),
+            "Practice Culture": onboarding_data.get('q18_personality'),
+            "Target Audience": onboarding_data.get('q19_personality'),
+            "Patient Terminology": onboarding_data.get('q20_personality'),
+            "Specialties": onboarding_data.get('q21_services'),
+            "Unique Services": onboarding_data.get('q22_services'),
+            "Brand Colors": onboarding_data.get('q23_brand'),
+            "Has Logo": onboarding_data.get('q24_brand'),
+            "Tagline": onboarding_data.get('q25_brand'),
+            "Brand Guidelines": onboarding_data.get('q26_brand'),
+            "Elevator Pitch": onboarding_data.get('q27_messaging'),
+            "Success Stories": onboarding_data.get('q28_messaging'),
+            
+            # Digital & Growth (Q29-Q48)
+            "Has Website": onboarding_data.get('q29_online'),
+            "Website URL": onboarding_data.get('q30_online'),
+            "Website Satisfaction": onboarding_data.get('q31_online'),
+            "Online Booking": onboarding_data.get('q32_online'),
+            "Accepts New Patients": onboarding_data.get('q33_online'),
+            "Social Platforms": onboarding_data.get('q34_social'),
+            "Instagram Handle": onboarding_data.get('q35_social'),
+            "Facebook Page": onboarding_data.get('q36_social'),
+            "Social Posting Frequency": onboarding_data.get('q37_social'),
+            "Social Growth Goal": onboarding_data.get('q38_social'),
+            "Content Topics": onboarding_data.get('q39_content'),
+            "Content Formats": onboarding_data.get('q40_content'),
+            "Review Platforms": onboarding_data.get('q41_reputation'),
+            "Average Rating": onboarding_data.get('q42_reputation'),
+            "Review Response": onboarding_data.get('q43_reputation'),
+            "Growth Goals": onboarding_data.get('q44_growth'),
+            "Patient Acquisition": onboarding_data.get('q45_growth'),
+            "Automation Interest": onboarding_data.get('q46_automation'),
+            "Monthly Budget": onboarding_data.get('q47_budget'),
+            "Additional Notes": onboarding_data.get('q48_notes'),
         }
         
-        # Remove None values
-        custom_fields = {k: v for k, v in custom_fields.items() if v is not None}
+        # Resolve field names to IDs
+        custom_fields = {}
+        for field_name, value in custom_fields_by_name.items():
+            if value is None or value == '':
+                continue
+                
+            field_id = field_mapping.get(field_name.lower())
+            
+            if field_id:
+                custom_fields[field_id] = value
+            else:
+                logger.warning(f"Custom field '{field_name}' not found in GHL. Skipping...")
         
         # Tags based on responses
         tags = ["Onboarding Completed"]
@@ -297,7 +427,7 @@ class GHLIntegrationService:
         """
         try:
             # Map onboarding data to GHL format
-            mapped_data = self.map_onboarding_data_to_ghl(onboarding_data)
+            mapped_data = await self.map_onboarding_data_to_ghl(onboarding_data)
             
             # Add practice name to custom fields
             mapped_data["custom_fields"]["practice_name"] = practice_name

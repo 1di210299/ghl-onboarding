@@ -376,12 +376,32 @@ class OnboardingWorkflow:
     def _save_to_database(self, state: OnboardingState) -> None:
         """Save current state to database using stage-based JSONB columns."""
         try:
+            # Log current state for debugging
+            logger.info(f"Saving to database - Step {state['current_step']}")
+            logger.info(f"State keys: {list(state.keys())}")
+            logger.info(f"q3_legal: {state.get('q3_legal')}")
+            logger.info(f"q7_suite_setup: {state.get('q7_suite_setup')}")
+            logger.info(f"q9_admin: {state.get('q9_admin')}")
+            
             # Prepare update data
             update_data = {
                 "updated_at": "now()",
                 "current_stage": state.get("current_stage"),
                 "current_question": state["current_step"]
             }
+            
+            # Extract and populate main fields from onboarding data
+            if state.get("q3_legal"):  # Practice legal name
+                update_data["legal_name"] = state["q3_legal"]
+                logger.info(f"Setting legal_name to: {state['q3_legal']}")
+            
+            if state.get("q9_admin"):  # Email
+                update_data["email"] = state["q9_admin"]
+                logger.info(f"Setting email to: {state['q9_admin']}")
+            
+            if state.get("q7_suite_setup"):  # Phone
+                update_data["phone"] = state["q7_suite_setup"]
+                logger.info(f"Setting phone to: {state['q7_suite_setup']}")
             
             # Organize data by stage
             quick_start_data = {}

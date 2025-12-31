@@ -19,38 +19,39 @@ export default function DashboardPage() {
     string | undefined
   >()
 
-  // Fetch clients from Supabase
-  const { data: clients, isLoading } = useQuery({
+  // Fetch clients from Backend API
+  const { data: clients, isLoading, error } = useQuery({
     queryKey: ['clients', TENANT_ID, search, statusFilter, terminologyFilter],
     queryFn: async () => {
-      let query = supabase
-        .from('clients')
-        .select('*')
-        .eq('tenant_id', TENANT_ID)
-        .order('created_at', { ascending: false })
+      const params = new URLSearchParams({
+        tenant_id: TENANT_ID,
+      })
+      
+      if (search) params.append('search', search)
+      if (statusFilter) params.append('status', statusFilter)
+      if (terminologyFilter) params.append('terminology', terminologyFilter)
 
-      if (search) {
-        query = query.or(
-          `practice_name.ilike.%${search}%,email.ilike.%${search}%`
-        )
+      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/clients?${params}`
+      console.log('Fetching clients from:', url)
+      
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        console.error('Failed to fetch clients:', response.status, response.statusText)
+        throw new Error('Failed to fetch clients')
       }
-
-      if (statusFilter === 'completed') {
-        query = query.eq('onboarding_completed', true)
-      } else if (statusFilter === 'pending') {
-        query = query.eq('onboarding_completed', false)
-      }
-
-      if (terminologyFilter) {
-        query = query.eq('terminology_preference', terminologyFilter)
-      }
-
-      const { data, error } = await query
-
-      if (error) throw error
-      return data as Client[]
+      
+      const data = await response.json()
+      console.log('Received data:', data)
+      console.log('Clients count:', data.clients?.length)
+      return data.clients as Client[]
     },
   })
+
+  // Log any errors
+  if (error) {
+    console.error('Query error:', error)
+  }
 
   const handleExport = () => {
     if (!clients) return
