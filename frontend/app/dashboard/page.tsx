@@ -73,6 +73,16 @@ export default function DashboardPage() {
     const onboardingUrl = `${window.location.origin}/onboarding`
     try {
       await navigator.clipboard.writeText(onboardingUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto py-8 px-4">
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
@@ -123,17 +133,6 @@ export default function DashboardPage() {
                 View in GoHighLevel
               </a>
             </div>
-          </div>
-        </div>>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                />
-              </svg>
-              View in GoHighLevel
-            </a>
           </div>
         </div>
 
