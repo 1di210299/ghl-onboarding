@@ -50,24 +50,24 @@ export default function OnboardingPage() {
               </svg>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              ¡Onboarding Completado!
+              Onboarding Complete!
             </h1>
             <p className="text-gray-600 mb-4">
-              Gracias por completar el proceso de onboarding.
+              Thank you for completing the onboarding process.
             </p>
             <p className="text-sm text-gray-500">
-              Hemos recibido toda tu información y pronto nos pondremos en contacto contigo.
+              We have received all your information and will contact you soon.
             </p>
           </div>
 
           <div className="bg-blue-50 rounded-lg p-4 mb-6">
             <p className="text-sm text-blue-800">
-              <strong>Próximos pasos:</strong>
+              <strong>Next steps:</strong>
             </p>
             <ul className="text-sm text-blue-700 mt-2 text-left space-y-1">
-              <li>✓ Revisaremos tu información</li>
-              <li>✓ Crearemos tu perfil en nuestro sistema</li>
-              <li>✓ Te contactaremos en las próximas 24-48 horas</li>
+              <li>✓ We will review your information</li>
+              <li>✓ We will create your profile in our system</li>
+              <li>✓ We will contact you within 24-48 hours</li>
             </ul>
           </div>
 
@@ -75,7 +75,7 @@ export default function OnboardingPage() {
             onClick={() => window.location.href = '/'}
             className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
-            Volver al Inicio
+            Back to Home
           </button>
         </div>
       </div>

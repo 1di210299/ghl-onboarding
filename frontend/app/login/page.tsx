@@ -24,7 +24,7 @@ export default function LoginPage() {
       localStorage.setItem('isAuthenticated', 'true');
       router.push('/dashboard');
     } else {
-      setError('Credenciales inválidas');
+      setError('Invalid credentials');
     }
     
     setLoading(false);
@@ -35,7 +35,7 @@ export default function LoginPage() {
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">GHL Onboarding</h1>
-          <p className="text-gray-600">Inicia sesión para acceder al dashboard</p>
+          <p className="text-gray-600">Sign in to access the dashboard</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
@@ -56,7 +56,7 @@ export default function LoginPage() {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Contraseña
+              Password
             </label>
             <input
               id="password"
@@ -80,7 +80,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
-            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
       </div>

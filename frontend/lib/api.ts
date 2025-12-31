@@ -66,26 +66,26 @@ class ApiClient {
     })
 
     return this.request<ClientListResponse>(
-      `/api/clients?${searchParams.toString()}`
+      `/clients?${searchParams.toString()}`
     )
   }
 
   async getClient(clientId: string): Promise<ApiResponse<any>> {
-    return this.request(`/api/clients/${clientId}`)
+    return this.request(`/clients/${clientId}`)
   }
 
   async updateClient(
     clientId: string,
     data: any
   ): Promise<ApiResponse<any>> {
-    return this.request(`/api/clients/${clientId}`, {
+    return this.request(`/clients/${clientId}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     })
   }
 
   async deleteClient(clientId: string): Promise<ApiResponse<void>> {
-    return this.request(`/api/clients/${clientId}`, {
+    return this.request(`/clients/${clientId}`, {
       method: 'DELETE',
     })
   }
