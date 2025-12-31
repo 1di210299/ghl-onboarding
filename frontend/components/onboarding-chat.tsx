@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Loader2, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -52,7 +54,7 @@ export default function OnboardingChat({
       setError(null);
       
       try {
-        const response = await fetch('http://localhost:8000/api/onboarding/start', {
+        const response = await fetch(`${API_URL}/onboarding/start`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -108,7 +110,7 @@ export default function OnboardingChat({
     ]);
 
     try {
-      const response = await fetch('http://localhost:8000/api/onboarding/message', {
+      const response = await fetch(`${API_URL}/onboarding/message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -185,7 +187,7 @@ export default function OnboardingChat({
       const currentQuestion = lastBotMessage.content;
 
       // Generate a realistic answer using OpenAI
-      const response = await fetch('http://localhost:8000/api/onboarding/generate-answer', {
+      const response = await fetch(`${API_URL}/onboarding/generate-answer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
