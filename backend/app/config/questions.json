@@ -1,0 +1,767 @@
+{
+  "version": "1.0",
+  "total_questions": 48,
+  "stages": [
+    {
+      "id": "basics",
+      "name": "Quick Start",
+      "description": "Essential information to get started",
+      "questions": [
+        {
+          "id": "Q1",
+          "section": "Basics",
+          "text": "What is your full name?",
+          "type": "Short Text",
+          "field_name": "q1_admin",
+          "options": null,
+          "dependency": null,
+          "tag": "Admin",
+          "notes": null,
+          "required": true,
+          "validator": "text"
+        },
+        {
+          "id": "Q2",
+          "section": "Basics",
+          "text": "What is your birthday? (Month & day only — we like celebrating you.)",
+          "type": "Short Text",
+          "field_name": "q2_culture",
+          "options": null,
+          "dependency": null,
+          "tag": "Culture",
+          "notes": "No year needed",
+          "required": true,
+          "validator": "text"
+        },
+        {
+          "id": "Q3",
+          "section": "Basics",
+          "text": "What is your practice name (legal)?",
+          "type": "Short Text",
+          "field_name": "q3_legal",
+          "options": null,
+          "dependency": null,
+          "tag": "Legal",
+          "notes": null,
+          "required": true,
+          "validator": "text"
+        },
+        {
+          "id": "Q4",
+          "section": "Basics",
+          "text": "What is your practice EIN?",
+          "type": "Short Text",
+          "field_name": "q4_legal",
+          "options": null,
+          "dependency": null,
+          "tag": "Legal",
+          "notes": "Secure field",
+          "required": true,
+          "validator": "text"
+        },
+        {
+          "id": "Q5",
+          "section": "Basics",
+          "text": "What is your office mailing address?",
+          "type": "Long Text",
+          "field_name": "q5_admin",
+          "options": null,
+          "dependency": null,
+          "tag": "Admin",
+          "notes": null,
+          "required": true,
+          "validator": "long_text"
+        },
+        {
+          "id": "Q6",
+          "section": "Basics",
+          "text": "What is your home mailing address (if different)?",
+          "type": "Long Text",
+          "field_name": "q6_admin",
+          "options": null,
+          "dependency": null,
+          "tag": "Admin",
+          "notes": "Optional",
+          "required": false,
+          "validator": "long_text"
+        },
+        {
+          "id": "Q7",
+          "section": "Basics",
+          "text": "What is your office phone number?",
+          "type": "Short Text",
+          "field_name": "q7_suite_setup",
+          "options": null,
+          "dependency": null,
+          "tag": "Suite-Setup",
+          "notes": null,
+          "required": true,
+          "validator": "text"
+        },
+        {
+          "id": "Q8",
+          "section": "Basics",
+          "text": "What is your office texting line (if different)?",
+          "type": "Short Text",
+          "field_name": "q8_suite_setup",
+          "options": null,
+          "dependency": "If different from phone",
+          "tag": "Suite-Setup",
+          "notes": null,
+          "required": true,
+          "validator": "text"
+        },
+        {
+          "id": "Q9",
+          "section": "Basics",
+          "text": "What is the best email for Staffless Practice correspondence?",
+          "type": "Email",
+          "field_name": "q9_admin",
+          "options": null,
+          "dependency": null,
+          "tag": "Admin",
+          "notes": null,
+          "required": true,
+          "validator": "email"
+        }
+      ],
+      "order": 1
+    },
+    {
+      "id": "team_tech",
+      "name": "Team & Tech",
+      "description": "Your team structure and technical setup",
+      "questions": [
+        {
+          "id": "Q10",
+          "section": "Team",
+          "text": "Please list members of your team and their roles.",
+          "type": "Long Text",
+          "field_name": "q10_team",
+          "options": null,
+          "dependency": null,
+          "tag": "Team",
+          "notes": null,
+          "required": true,
+          "validator": "long_text"
+        },
+        {
+          "id": "Q11",
+          "section": "Team",
+          "text": "Who will be the ONE point person for the Staffless Practice process?",
+          "type": "Short Text",
+          "field_name": "q11_client_lead",
+          "options": null,
+          "dependency": null,
+          "tag": "Client-Lead",
+          "notes": "Critical",
+          "required": true,
+          "validator": "text"
+        },
+        {
+          "id": "Q12",
+          "section": "Team",
+          "text": "How do you prefer to communicate with our team?",
+          "type": "Multiple Choice",
+          "field_name": "q12_communication",
+          "options": [
+            "Slack",
+            "Email",
+            "Practice Suite"
+          ],
+          "dependency": null,
+          "tag": "Communication",
+          "notes": null,
+          "required": true,
+          "validator": "choice"
+        },
+        {
+          "id": "Q13",
+          "section": "Tech",
+          "text": "On a scale of 1–5, how tech-savvy do you feel?",
+          "type": "Scale",
+          "field_name": "q13_readiness",
+          "options": null,
+          "dependency": null,
+          "tag": "Readiness",
+          "notes": null,
+          "required": true,
+          "validator": "scale"
+        },
+        {
+          "id": "Q14",
+          "section": "Tech",
+          "text": "Are you currently working with a marketing company?",
+          "type": "Yes/No",
+          "field_name": "q14_marketing",
+          "options": [
+            "Yes",
+            "No"
+          ],
+          "dependency": null,
+          "tag": "Marketing",
+          "notes": null,
+          "required": true,
+          "validator": "boolean"
+        },
+        {
+          "id": "Q15",
+          "section": "Tech",
+          "text": "If yes, who are you working with?",
+          "type": "Short Text",
+          "field_name": "q15_marketing",
+          "options": null,
+          "dependency": "Q14 = Yes",
+          "tag": "Marketing",
+          "notes": null,
+          "required": true,
+          "validator": "text"
+        },
+        {
+          "id": "Q16",
+          "section": "Tech",
+          "text": "Do you currently use any software for texting or email blasts?",
+          "type": "Long Text",
+          "field_name": "q16_stack",
+          "options": null,
+          "dependency": null,
+          "tag": "Stack",
+          "notes": "List all",
+          "required": true,
+          "validator": "long_text"
+        }
+      ],
+      "order": 2
+    },
+    {
+      "id": "identity_brand",
+      "name": "Identity & Brand",
+      "description": "Your practice personality and visual identity",
+      "questions": [
+        {
+          "id": "Q17",
+          "section": "Identity",
+          "text": "What type of practice are you?",
+          "type": "Multiple Choice",
+          "field_name": "q17_practice_type",
+          "options": [
+            "Chiro",
+            "PT",
+            "Therapy",
+            "Acupuncture",
+            "Naturopathic",
+            "Other"
+          ],
+          "dependency": null,
+          "tag": "Practice-Type",
+          "notes": null,
+          "required": true,
+          "validator": "choice"
+        },
+        {
+          "id": "Q18",
+          "section": "Identity",
+          "text": "Who do you most love working with?",
+          "type": "Long Text",
+          "field_name": "q18_ideal_client",
+          "options": null,
+          "dependency": null,
+          "tag": "Ideal-Client",
+          "notes": null,
+          "required": true,
+          "validator": "long_text"
+        },
+        {
+          "id": "Q19",
+          "section": "Identity",
+          "text": "Who do you NOT want more of?",
+          "type": "Long Text",
+          "field_name": "q19_boundaries",
+          "options": null,
+          "dependency": null,
+          "tag": "Boundaries",
+          "notes": "Safe space",
+          "required": true,
+          "validator": "long_text"
+        },
+        {
+          "id": "Q20",
+          "section": "Identity",
+          "text": "What problem do people usually come to you for first?",
+          "type": "Long Text",
+          "field_name": "q20_messaging",
+          "options": null,
+          "dependency": null,
+          "tag": "Messaging",
+          "notes": null,
+          "required": true,
+          "validator": "long_text"
+        },
+        {
+          "id": "Q21",
+          "section": "Identity",
+          "text": "What transformation do they stay for?",
+          "type": "Long Text",
+          "field_name": "q21_messaging",
+          "options": null,
+          "dependency": null,
+          "tag": "Messaging",
+          "notes": null,
+          "required": true,
+          "validator": "long_text"
+        },
+        {
+          "id": "Q22",
+          "section": "Brand",
+          "text": "Choose 3–5 words that describe your practice’s personality.",
+          "type": "Long Text",
+          "field_name": "q22_brand_voice",
+          "options": null,
+          "dependency": null,
+          "tag": "Brand-Voice",
+          "notes": null,
+          "required": true,
+          "validator": "long_text"
+        },
+        {
+          "id": "Q23",
+          "section": "Brand",
+          "text": "Choose 3–5 words you never want your brand to sound like.",
+          "type": "Long Text",
+          "field_name": "q23_brand_voice",
+          "options": null,
+          "dependency": null,
+          "tag": "Brand-Voice",
+          "notes": null,
+          "required": true,
+          "validator": "long_text"
+        },
+        {
+          "id": "Q24",
+          "section": "Brand",
+          "text": "Do you have a brand kit you’re happy with?",
+          "type": "Multiple Choice",
+          "field_name": "q24_brand",
+          "options": [
+            "Yes",
+            "It’s okay",
+            "No"
+          ],
+          "dependency": null,
+          "tag": "Brand",
+          "notes": null,
+          "required": true,
+          "validator": "choice"
+        },
+        {
+          "id": "Q25",
+          "section": "Brand",
+          "text": "Do you currently have a logo?",
+          "type": "Yes/No",
+          "field_name": "q25_brand",
+          "options": [
+            "Yes",
+            "No"
+          ],
+          "dependency": null,
+          "tag": "Brand",
+          "notes": null,
+          "required": true,
+          "validator": "boolean"
+        },
+        {
+          "id": "Q26",
+          "section": "Brand",
+          "text": "Do you have a font set?",
+          "type": "Yes/No",
+          "field_name": "q26_brand",
+          "options": [
+            "Yes",
+            "No"
+          ],
+          "dependency": null,
+          "tag": "Brand",
+          "notes": null,
+          "required": true,
+          "validator": "boolean"
+        },
+        {
+          "id": "Q27",
+          "section": "Brand",
+          "text": "Do you have a color palette?",
+          "type": "Yes/No",
+          "field_name": "q27_brand",
+          "options": [
+            "Yes",
+            "No"
+          ],
+          "dependency": null,
+          "tag": "Brand",
+          "notes": null,
+          "required": true,
+          "validator": "boolean"
+        },
+        {
+          "id": "Q28",
+          "section": "Brand",
+          "text": "Where are your brand assets stored?",
+          "type": "Multiple Choice",
+          "field_name": "q28_brand",
+          "options": [
+            "Canva",
+            "Google Drive",
+            "Dropbox",
+            "Not sure"
+          ],
+          "dependency": null,
+          "tag": "Brand",
+          "notes": null,
+          "required": true,
+          "validator": "choice"
+        }
+      ],
+      "order": 3
+    },
+    {
+      "id": "digital_growth",
+      "name": "Digital & Growth",
+      "description": "Online presence and growth strategy",
+      "questions": [
+        {
+          "id": "Q29",
+          "section": "Website",
+          "text": "Do you currently have a website?",
+          "type": "Multiple Choice",
+          "field_name": "q29_website",
+          "options": [
+            "Yes",
+            "No",
+            "Sort of"
+          ],
+          "dependency": null,
+          "tag": "Website",
+          "notes": null,
+          "required": true,
+          "validator": "choice"
+        },
+        {
+          "id": "Q30",
+          "section": "Website",
+          "text": "What would you like to do with your website?",
+          "type": "Multiple Choice",
+          "field_name": "q30_website",
+          "options": [
+            "Leave as-is",
+            "Light updates",
+            "Refresh",
+            "Full rebuild",
+            "Need guidance"
+          ],
+          "dependency": "Q29 ≠ No",
+          "tag": "Website",
+          "notes": null,
+          "required": true,
+          "validator": "choice"
+        },
+        {
+          "id": "Q31",
+          "section": "Website",
+          "text": "Would you like us to build a new website for you?",
+          "type": "Yes/No",
+          "field_name": "q31_website",
+          "options": [
+            "Yes",
+            "Not right now"
+          ],
+          "dependency": "Q29 = No",
+          "tag": "Website",
+          "notes": null,
+          "required": true,
+          "validator": "boolean"
+        },
+        {
+          "id": "Q32",
+          "section": "Website",
+          "text": "What is the main job your website should do?",
+          "type": "Multiple Choice",
+          "field_name": "q32_website_strategy",
+          "options": [
+            "Booking",
+            "Education",
+            "Trust",
+            "Referrals",
+            "All"
+          ],
+          "dependency": null,
+          "tag": "Website-Strategy",
+          "notes": null,
+          "required": true,
+          "validator": "choice"
+        },
+        {
+          "id": "Q33",
+          "section": "Website",
+          "text": "What currently bothers you about your website?",
+          "type": "Long Text",
+          "field_name": "q33_website",
+          "options": null,
+          "dependency": "Q29 ≠ No",
+          "tag": "Website",
+          "notes": null,
+          "required": true,
+          "validator": "long_text"
+        },
+        {
+          "id": "Q34",
+          "section": "Social",
+          "text": "Which platforms do you want to grow with?",
+          "type": "Multi-Select",
+          "field_name": "q34_social",
+          "options": [
+            "Instagram",
+            "Facebook",
+            "LinkedIn",
+            "Blog",
+            "None"
+          ],
+          "dependency": null,
+          "tag": "Social",
+          "notes": null,
+          "required": true,
+          "validator": "multi_select"
+        },
+        {
+          "id": "Q35",
+          "section": "Instagram",
+          "text": "How should Instagram function?",
+          "type": "Multiple Choice",
+          "field_name": "q35_social_ig",
+          "options": [
+            "Trust",
+            "Education",
+            "Visibility",
+            "Repurpose",
+            "Not priority"
+          ],
+          "dependency": "Instagram selected",
+          "tag": "Social-IG",
+          "notes": null,
+          "required": true,
+          "validator": "choice"
+        },
+        {
+          "id": "Q36",
+          "section": "Facebook",
+          "text": "What role should Facebook play?",
+          "type": "Multiple Choice",
+          "field_name": "q36_social_fb",
+          "options": [
+            "Community",
+            "Announcements",
+            "Ads only",
+            "Light",
+            "None"
+          ],
+          "dependency": "Facebook selected",
+          "tag": "Social-FB",
+          "notes": null,
+          "required": true,
+          "validator": "choice"
+        },
+        {
+          "id": "Q37",
+          "section": "LinkedIn",
+          "text": "Who would LinkedIn be for?",
+          "type": "Short Text",
+          "field_name": "q37_social_li",
+          "options": null,
+          "dependency": "LinkedIn selected",
+          "tag": "Social-LI",
+          "notes": null,
+          "required": true,
+          "validator": "text"
+        },
+        {
+          "id": "Q38",
+          "section": "Blog",
+          "text": "What would a blog support?",
+          "type": "Multiple Choice",
+          "field_name": "q38_blog",
+          "options": [
+            "SEO",
+            "Education",
+            "Authority",
+            "Not sure"
+          ],
+          "dependency": "Blog selected",
+          "tag": "Blog",
+          "notes": null,
+          "required": true,
+          "validator": "choice"
+        },
+        {
+          "id": "Q39",
+          "section": "Suite",
+          "text": "How would you like your Practice Suite managed?",
+          "type": "Multiple Choice",
+          "field_name": "q39_suite_model",
+          "options": [
+            "AI-run",
+            "Human support (upgrade)",
+            "Mix",
+            "Not sure"
+          ],
+          "dependency": null,
+          "tag": "Suite-Model",
+          "notes": "Critical",
+          "required": true,
+          "validator": "choice"
+        },
+        {
+          "id": "Q40",
+          "section": "Suite",
+          "text": "If a real person helped, what would you want handled?",
+          "type": "Multi-Select",
+          "field_name": "q40_saya",
+          "options": [
+            "Inbox",
+            "Scheduling",
+            "Follow-ups",
+            "Admin",
+            "Projects"
+          ],
+          "dependency": "Q39 ≠ AI-only",
+          "tag": "SAYA",
+          "notes": null,
+          "required": true,
+          "validator": "multi_select"
+        },
+        {
+          "id": "Q41",
+          "section": "Growth",
+          "text": "Are you interested in SEO?",
+          "type": "Multiple Choice",
+          "field_name": "q41_seo",
+          "options": [
+            "Yes",
+            "Maybe later",
+            "No",
+            "Need guidance"
+          ],
+          "dependency": null,
+          "tag": "SEO",
+          "notes": "Upgrade",
+          "required": true,
+          "validator": "choice"
+        },
+        {
+          "id": "Q42",
+          "section": "Growth",
+          "text": "Are you interested in Ads?",
+          "type": "Multiple Choice",
+          "field_name": "q42_ads",
+          "options": [
+            "Yes",
+            "Maybe later",
+            "No",
+            "Need guidance"
+          ],
+          "dependency": null,
+          "tag": "Ads",
+          "notes": "Upgrade",
+          "required": true,
+          "validator": "choice"
+        },
+        {
+          "id": "Q43",
+          "section": "Growth",
+          "text": "What would success from growth look like to you?",
+          "type": "Long Text",
+          "field_name": "q43_growth",
+          "options": null,
+          "dependency": null,
+          "tag": "Growth",
+          "notes": null,
+          "required": true,
+          "validator": "long_text"
+        },
+        {
+          "id": "Q44",
+          "section": "Priority",
+          "text": "If we could focus on ONE thing first, what should it be?",
+          "type": "Multiple Choice",
+          "field_name": "q44_priority",
+          "options": [
+            "Systems",
+            "Support",
+            "Visibility",
+            "Content",
+            "Clarity"
+          ],
+          "dependency": null,
+          "tag": "Priority",
+          "notes": null,
+          "required": true,
+          "validator": "choice"
+        },
+        {
+          "id": "Q45",
+          "section": "Priority",
+          "text": "How fast do you want things to move?",
+          "type": "Multiple Choice",
+          "field_name": "q45_pace",
+          "options": [
+            "Slow",
+            "Steady",
+            "Fast"
+          ],
+          "dependency": null,
+          "tag": "Pace",
+          "notes": null,
+          "required": true,
+          "validator": "choice"
+        },
+        {
+          "id": "Q46",
+          "section": "Trust",
+          "text": "Is there anything that’s burned you with past vendors we should avoid?",
+          "type": "Long Text",
+          "field_name": "q46_risk",
+          "options": null,
+          "dependency": null,
+          "tag": "Risk",
+          "notes": null,
+          "required": true,
+          "validator": "long_text"
+        },
+        {
+          "id": "Q47",
+          "section": "Close",
+          "text": "What would feeling truly supported look like to you?",
+          "type": "Long Text",
+          "field_name": "q47_success",
+          "options": null,
+          "dependency": null,
+          "tag": "Success",
+          "notes": null,
+          "required": true,
+          "validator": "long_text"
+        },
+        {
+          "id": "Q48",
+          "section": "Close",
+          "text": "Is there anything else you want us to know?",
+          "type": "Long Text",
+          "field_name": "q48_notes",
+          "options": null,
+          "dependency": null,
+          "tag": "Notes",
+          "notes": null,
+          "required": true,
+          "validator": "long_text"
+        }
+      ],
+      "order": 4
+    }
+  ]
+}

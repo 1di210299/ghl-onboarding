@@ -1,0 +1,209 @@
+{
+  "name": "GHL Onboarding to GoHighLevel Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "onboarding-complete",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "onboarding-complete"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Extract client data from webhook payload\nconst clientData = items[0].json.data;\n\n// Map to GoHighLevel fields\nreturn [\n  {\n    json: {\n      client_id: clientData.id,\n      firstName: clientData.practice_name.split(' ')[0],\n      lastName: clientData.practice_name.split(' ').slice(1).join(' ') || 'Practice',\n      email: clientData.email,\n      phone: clientData.phone,\n      address1: clientData.address?.street,\n      city: clientData.address?.city,\n      state: clientData.address?.state,\n      postalCode: clientData.address?.zip,\n      website: clientData.website,\n      customFields: {\n        practice_name: clientData.practice_name,\n        legal_name: clientData.legal_name,\n        terminology_preference: clientData.terminology_preference,\n        brand_colors: JSON.stringify(clientData.brand_colors),\n        business_goals: JSON.stringify(clientData.business_goals),\n        social_facebook: clientData.social_links?.facebook,\n        social_instagram: clientData.social_links?.instagram,\n        social_linkedin: clientData.social_links?.linkedin,\n        social_twitter: clientData.social_links?.twitter,\n        onboarding_completed_at: new Date().toISOString()\n      }\n    }\n  }\n];"
+      },
+      "name": "Map Fields",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "contact",
+        "operation": "create",
+        "locationId": "={{$env.GHL_LOCATION_ID}}",
+        "additionalFields": {
+          "firstName": "={{$json.firstName}}",
+          "lastName": "={{$json.lastName}}",
+          "email": "={{$json.email}}",
+          "phone": "={{$json.phone}}",
+          "address1": "={{$json.address1}}",
+          "city": "={{$json.city}}",
+          "state": "={{$json.state}}",
+          "postalCode": "={{$json.postalCode}}",
+          "website": "={{$json.website}}",
+          "customFields": "={{$json.customFields}}"
+        }
+      },
+      "name": "Create GHL Contact",
+      "type": "n8n-nodes-base.goHighLevel",
+      "typeVersion": 1,
+      "position": [650, 300],
+      "credentials": {
+        "goHighLevelOAuth2Api": {
+          "id": "1",
+          "name": "GoHighLevel OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Handle errors\nconst error = items[0].json.error;\nconst clientId = items[0].json.client_id;\n\n// Log error\nconsole.error('GHL sync failed:', error);\n\n// Return error response\nreturn [\n  {\n    json: {\n      success: false,\n      client_id: clientId,\n      error: error.message || 'Unknown error',\n      timestamp: new Date().toISOString()\n    }\n  }\n];"
+      },
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [650, 500]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.BACKEND_API_URL}}/api/webhooks/ghl-sync-complete",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "client_id": "={{$node['Map Fields'].json.client_id}}",
+            "ghl_contact_id": "={{$json.id}}",
+            "sync_timestamp": "={{new Date().toISOString()}}"
+          }
+        }
+      },
+      "name": "Update Backend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "locationId": "={{$env.GHL_LOCATION_ID}}",
+        "workflowId": "={{$env.GHL_WORKFLOW_ID}}",
+        "contactId": "={{$json.id}}"
+      },
+      "name": "Trigger GHL Workflow",
+      "type": "n8n-nodes-base.goHighLevel",
+      "typeVersion": 1,
+      "position": [1050, 300],
+      "credentials": {
+        "goHighLevelOAuth2Api": {
+          "id": "1",
+          "name": "GoHighLevel OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": {
+          "success": true,
+          "client_id": "={{$node['Map Fields'].json.client_id}}",
+          "ghl_contact_id": "={{$node['Create GHL Contact'].json.id}}",
+          "message": "Successfully synced to GoHighLevel"
+        }
+      },
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}"
+      },
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 500]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Map Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Fields": {
+      "main": [
+        [
+          {
+            "node": "Create GHL Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create GHL Contact": {
+      "main": [
+        [
+          {
+            "node": "Update Backend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Backend": {
+      "main": [
+        [
+          {
+            "node": "Trigger GHL Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger GHL Workflow": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Handler": {
+      "main": [
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "error_handler_workflow_id"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "ghl-onboarding",
+      "id": "1"
+    }
+  ],
+  "meta": {
+    "instanceId": "your-n8n-instance-id"
+  }
+}
