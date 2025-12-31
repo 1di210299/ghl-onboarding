@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     ghl_api_key: Optional[str] = None
     ghl_location_id: Optional[str] = None
     ghl_workflow_id: Optional[str] = None
-    ghl_api_url: str = "https://services.leadconnectorhq.com"
+    ghl_api_url: str = "https://rest.gohighlevel.com/v1"
     
     # JWT
     jwt_secret: str

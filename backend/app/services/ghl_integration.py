@@ -24,11 +24,10 @@ class GHLIntegrationService:
         """
         self.api_key = api_key
         self.location_id = location_id
-        self.base_url = "https://services.leadconnectorhq.com"
+        self.base_url = "https://rest.gohighlevel.com/v1"
         self.headers = {
             "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-            "Version": "2021-07-28"
+            "Content-Type": "application/json"
         }
     
     async def create_or_update_contact(
@@ -59,7 +58,6 @@ class GHLIntegrationService:
         try:
             # Prepare contact data
             contact_data = {
-                "locationId": self.location_id,
                 "email": email,
                 "source": source
             }
@@ -73,28 +71,27 @@ class GHLIntegrationService:
             if tags:
                 contact_data["tags"] = tags
             if custom_fields:
-                contact_data["customFields"] = [
-                    {"key": key, "field_value": value}
-                    for key, value in custom_fields.items()
+                # Format: [{"id": "field_id", "value": "value"}]
+                contact_data["customField"] = [
+                    {"id": field_id, "value": value}
+                    for field_id, value in custom_fields.items()
                 ]
             
             async with httpx.AsyncClient(timeout=30.0) as client:
                 # First, try to find existing contact by email
                 search_response = await client.get(
-                    f"{self.base_url}/contacts/search/duplicate",
+                    f"{self.base_url}/contacts/",
                     headers=self.headers,
-                    params={
-                        "locationId": self.location_id,
-                        "email": email
-                    }
+                    params={"email": email}
                 )
                 
                 if search_response.status_code == 200:
                     search_data = search_response.json()
+                    contacts = search_data.get("contacts", [])
                     
-                    if search_data.get("contact"):
+                    if contacts and len(contacts) > 0:
                         # Update existing contact
-                        contact_id = search_data["contact"]["id"]
+                        contact_id = contacts[0]["id"]
                         logger.info(f"Updating existing GHL contact: {contact_id}")
                         
                         update_response = await client.put(
@@ -219,59 +216,46 @@ class GHLIntegrationService:
         }
         
         # Custom fields mapping
+        # NOTE: These keys should be the GHL custom field IDs (not names)
+        # Run: curl with GHL API to get all custom field IDs, or check GHL dashboard
+        # Format: {"custom_field_id": "value"}
+        # 
+        # Known field IDs:
+        # - v3qz5dhJBIuNJWUi1LGW: Practice Legal Name
+        # - LMVDJCOZLXnoy3jkozSv: Message (for notes)
+        # - S73hTOb1vaQu5X6YxOPf: Age
+        # 
+        # TODO: Create remaining custom fields in GHL and update these IDs
         custom_fields = {
-            # Quick Start (Q1-Q9)
-            "birthday": onboarding_data.get('q2_culture'),
-            "practice_legal_name": onboarding_data.get('q3_legal'),
-            "practice_ein": onboarding_data.get('q4_legal'),
-            "office_address": onboarding_data.get('q5_admin'),
-            "home_address": onboarding_data.get('q6_admin'),
-            "texting_line": onboarding_data.get('q8_suite_setup'),
-            
-            # Team & Tech (Q10-Q16)
-            "team_members": onboarding_data.get('q10_team'),
-            "point_person": onboarding_data.get('q11_client_lead'),
-            "communication_preference": onboarding_data.get('q12_admin'),
-            "current_ehr": onboarding_data.get('q13_tech'),
-            "has_marketing_team": onboarding_data.get('q14_marketing'),
-            "marketing_budget": onboarding_data.get('q15_marketing'),
-            "existing_crm": onboarding_data.get('q16_tech'),
-            
-            # Identity & Brand (Q17-Q28)
-            "brand_personality": onboarding_data.get('q17_personality'),
-            "practice_culture": onboarding_data.get('q18_personality'),
-            "target_audience": onboarding_data.get('q19_personality'),
-            "patient_terminology": onboarding_data.get('q20_personality'),
-            "specialties": onboarding_data.get('q21_services'),
-            "unique_services": onboarding_data.get('q22_services'),
-            "brand_colors": onboarding_data.get('q23_brand'),
-            "has_logo": onboarding_data.get('q24_brand'),
-            "tagline": onboarding_data.get('q25_brand'),
-            "brand_guidelines": onboarding_data.get('q26_brand'),
-            "elevator_pitch": onboarding_data.get('q27_messaging'),
-            "success_stories": onboarding_data.get('q28_messaging'),
-            
-            # Digital & Growth (Q29-Q48)
-            "has_website": onboarding_data.get('q29_online'),
-            "website_url": onboarding_data.get('q30_online'),
-            "website_satisfaction": onboarding_data.get('q31_online'),
-            "online_booking": onboarding_data.get('q32_online'),
-            "accepts_new_patients": onboarding_data.get('q33_online'),
-            "social_platforms": onboarding_data.get('q34_social'),
-            "instagram_handle": onboarding_data.get('q35_social'),
-            "facebook_page": onboarding_data.get('q36_social'),
-            "social_posting_frequency": onboarding_data.get('q37_social'),
-            "social_growth_goal": onboarding_data.get('q38_social'),
-            "content_topics": onboarding_data.get('q39_content'),
-            "content_formats": onboarding_data.get('q40_content'),
-            "review_platforms": onboarding_data.get('q41_reputation'),
-            "average_rating": onboarding_data.get('q42_reputation'),
-            "review_response": onboarding_data.get('q43_reputation'),
-            "growth_goals": onboarding_data.get('q44_growth'),
-            "patient_acquisition": onboarding_data.get('q45_growth'),
-            "automation_interest": onboarding_data.get('q46_automation'),
-            "monthly_budget": onboarding_data.get('q47_budget'),
-            "additional_notes": onboarding_data.get('q48_notes'),
+            # Quick Start (Q1-Q9) - UPDATE THESE IDs WITH YOUR GHL CUSTOM FIELD IDs
+            "v3qz5dhJBIuNJWUi1LGW": onboarding_data.get('q3_legal'),  # Practice Legal Name
+            "LMVDJCOZLXnoy3jkozSv": onboarding_data.get('q48_notes'),  # Additional notes/message
+            # TODO: Create these fields in GHL Settings -> Custom Fields:
+            # - Practice EIN (TEXT): onboarding_data.get('q4_legal')
+            # - Office Address (TEXT_AREA): onboarding_data.get('q5_admin')
+            # - Home Address (TEXT_AREA): onboarding_data.get('q6_admin')
+            # - Birthday (TEXT): onboarding_data.get('q2_culture')
+            # - Phone/Texting Line (TEXT): onboarding_data.get('q8_suite_setup')
+            # - Team Members (TEXT_AREA): onboarding_data.get('q10_team')
+            # - Point Person (TEXT): onboarding_data.get('q11_client_lead')
+            # - Communication Preference (SINGLE_OPTIONS): onboarding_data.get('q12_admin')
+            # - Current EHR (TEXT): onboarding_data.get('q13_tech')
+            # - Has Marketing Team (SINGLE_OPTIONS): onboarding_data.get('q14_marketing')
+            # - Marketing Budget (TEXT): onboarding_data.get('q15_marketing')
+            # - Brand Personality (TEXT_AREA): onboarding_data.get('q17_personality')
+            # - Target Audience (TEXT_AREA): onboarding_data.get('q19_personality')
+            # - Specialties (TEXT_AREA): onboarding_data.get('q21_services')
+            # - Brand Colors (TEXT): onboarding_data.get('q23_brand')
+            # - Tagline (TEXT): onboarding_data.get('q25_brand')
+            # - Elevator Pitch (TEXT_AREA): onboarding_data.get('q27_messaging')
+            # - Website URL (TEXT): onboarding_data.get('q30_online')
+            # - Instagram Handle (TEXT): onboarding_data.get('q35_social')
+            # - Facebook Page (TEXT): onboarding_data.get('q36_social')
+            # - Growth Goals (TEXT_AREA): onboarding_data.get('q44_growth')
+            # - Monthly Budget (TEXT): onboarding_data.get('q47_budget')
+            # ... (Add more as needed - see docs/guides/GHL_INTEGRATION.md for full list)
+        }
+            # ... (Add more as needed - see docs/guides/GHL_INTEGRATION.md for full list)
         }
         
         # Remove None values
