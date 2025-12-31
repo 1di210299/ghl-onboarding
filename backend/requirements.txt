@@ -4,10 +4,10 @@ pydantic==2.6.0
 pydantic-settings==2.1.0
 
 # AI & LangChain
-langchain==0.1.6
-langchain-openai==0.0.5
-langgraph==0.0.20
-openai==1.10.0
+langchain==0.3.14
+langchain-openai==0.2.14
+langgraph==0.2.59
+openai==1.57.4
 
 # Database
 supabase>=2.9.0
