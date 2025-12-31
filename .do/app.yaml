@@ -37,17 +37,17 @@ services:
         type: SECRET
       
       - key: SUPABASE_URL
-        value: ${SUPABASE_URL}
+        value: https://gbwrzkiegehmmdqfvojm.supabase.co
         scope: RUN_TIME
         type: SECRET
       
       - key: SUPABASE_ANON_KEY
-        value: ${SUPABASE_ANON_KEY}
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdid3J6a2llZ2VobW1kcWZ2b2ptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMTYxNzQsImV4cCI6MjA4MjY5MjE3NH0.9wRFCHJw-9BXz63kQ-BWmAaSEwPEpTj_2t0_1h1IvVw
         scope: RUN_TIME
         type: SECRET
       
       - key: SUPABASE_SERVICE_KEY
-        value: ${SUPABASE_SERVICE_KEY}
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdid3J6a2llZ2VobW1kcWZ2b2ptIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzExNjE3NCwiZXhwIjoyMDgyNjkyMTc0fQ.8Z4pRdOUwqaq5oKqoWd1dnC8Sf6lz32LKfhc_K3am64
         scope: RUN_TIME
         type: SECRET
       
