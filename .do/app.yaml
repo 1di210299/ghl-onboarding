@@ -69,6 +69,15 @@ services:
         scope: RUN_TIME
         type: SECRET
       
+      - key: DATABASE_URL
+        value: ${DATABASE_URL}
+        scope: RUN_TIME
+        type: SECRET
+      
+      - key: N8N_WEBHOOK_URL
+        value: ""
+        scope: RUN_TIME
+      
       - key: ENVIRONMENT
         value: production
         scope: RUN_TIME

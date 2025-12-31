@@ -4,7 +4,7 @@ Manages the step-by-step conversation flow using LangGraph state machine.
 """
 
 from typing import Dict, Any, List, Optional
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import StateGraph
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from app.services.state import OnboardingState
@@ -129,11 +129,11 @@ class OnboardingWorkflow:
         workflow.add_node("save_data", self.save_data_node)
         workflow.add_node("complete", self.complete_node)
         
-        # Define edges - use START instead of set_entry_point in LangGraph 1.0
-        workflow.add_edge(START, "ask_question")
+        # Define edges - use __start__ instead of set_entry_point in LangGraph 1.0
+        workflow.add_edge("__start__", "ask_question")
         
         # STOP after asking question - don't auto-validate
-        workflow.add_edge("ask_question", END)
+        workflow.add_edge("ask_question", "__end__")
         
         # When validating, either ask for clarification or save
         workflow.add_conditional_edges(
@@ -147,7 +147,7 @@ class OnboardingWorkflow:
         )
         # After saving, ask next question and STOP
         workflow.add_edge("save_data", "ask_question")
-        workflow.add_edge("complete", END)
+        workflow.add_edge("complete", "__end__")
         
         return workflow.compile()
     

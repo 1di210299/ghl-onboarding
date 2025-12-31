@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     database_url: str
     
     # n8n
-    n8n_webhook_url: str
+    n8n_webhook_url: Optional[str] = None
     
     # GoHighLevel Integration
     ghl_api_key: Optional[str] = None
