@@ -211,11 +211,37 @@ async def start_onboarding(request: OnboardingStartRequest):
         # Get first question from JSON config
         logger.info("Getting first question...")
         from app.services.workflow import get_question_by_index
+        from langchain_core.messages import AIMessage
         first_q = get_question_by_index(0)
         logger.info(f"First question retrieved: {first_q['id']}")
         first_question = first_q['text']
         if first_q.get('options'):
             first_question += f"\n\nOptions: {first_q['options']}"
+        
+        # Add first question to initial state messages
+        initial_state["messages"].append(AIMessage(content=first_question))
+        
+        # Save initial state with first question to database
+        try:
+            messages_data = [
+                {
+                    "role": "assistant" if isinstance(m, (AIMessage, SystemMessage)) else "user",
+                    "content": m.content
+                }
+                for m in initial_state["messages"]
+            ]
+            
+            service_client.table("clients").update({
+                "onboarding_data": {
+                    "session_id": session_id,
+                    "current_step": 0,
+                    "current_stage": None,
+                    "messages": messages_data
+                }
+            }).eq("id", client_id).execute()
+            logger.info(f"Saved initial question to database for client: {client_id}")
+        except Exception as e:
+            logger.error(f"Error saving initial question to database: {e}")
         
         logger.info(f"Started onboarding session: {session_id} for client: {client_id}")
         

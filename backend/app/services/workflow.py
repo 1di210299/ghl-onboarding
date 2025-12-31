@@ -53,50 +53,13 @@ def get_stage_for_question(question_index: int) -> Optional[str]:
 
 
 def check_dependency(question: Dict[str, Any], state: Dict[str, Any]) -> bool:
-    """Check if question's dependency condition is met."""
-    dependency = question.get('dependency')
-    if not dependency:
-        return True
+    """
+    Check if question's dependency condition is met.
     
-    # Parse dependency (e.g., "Q14 = Yes", "Q29 ≠ No", "Instagram selected")
-    if '=' in dependency:
-        parts = dependency.split('=')
-        if len(parts) == 2:
-            dep_q = parts[0].strip()
-            dep_value = parts[1].strip()
-            
-            # Check if it's checking a previous answer
-            if dep_q.startswith('Q'):
-                # Get the field name for that question
-                dep_q_num = int(dep_q[1:])
-                dep_question = get_question_by_index(dep_q_num - 1)
-                if dep_question:
-                    field_name = dep_question['field_name']
-                    actual_value = state.get(field_name)
-                    return str(actual_value).lower() == dep_value.lower()
-    
-    elif '≠' in dependency or '!=' in dependency:
-        sep = '≠' if '≠' in dependency else '!='
-        parts = dependency.split(sep)
-        if len(parts) == 2:
-            dep_q = parts[0].strip()
-            dep_value = parts[1].strip()
-            
-            if dep_q.startswith('Q'):
-                dep_q_num = int(dep_q[1:])
-                dep_question = get_question_by_index(dep_q_num - 1)
-                if dep_question:
-                    field_name = dep_question['field_name']
-                    actual_value = state.get(field_name)
-                    return str(actual_value).lower() != dep_value.lower()
-    
-    elif 'selected' in dependency.lower():
-        # Handle "Instagram selected", "Facebook selected", etc.
-        platform = dependency.replace('selected', '').strip()
-        # Check if platform is in the multi-select answer from Q34
-        q34_answer = state.get('q34_social', '')
-        return platform.lower() in str(q34_answer).lower()
-    
+    IMPORTANT: All 48 questions MUST be asked regardless of dependencies.
+    This function is kept for backward compatibility but always returns True.
+    """
+    # ALL QUESTIONS MUST BE ASKED - No skipping allowed
     return True
 
 
@@ -178,36 +141,27 @@ class OnboardingWorkflow:
             if not current_question:
                 question = "Something went wrong. Let's try again."
             else:
-                # Check if this question should be skipped due to dependencies
-                while current_question and not check_dependency(current_question, state):
-                    step += 1
-                    state["current_step"] = step
-                    current_question = get_question_by_index(step)
+                # ALL 48 QUESTIONS MUST BE ASKED - No skipping
+                question = current_question['text']
                 
-                if current_question:
-                    question = current_question['text']
-                    
-                    # Add options if it's a choice question
-                    if current_question.get('options') and current_question['type'] in ['Multiple Choice', 'Multi-Select']:
-                        options = current_question['options']
-                        # Handle options as list or string
-                        if isinstance(options, list):
-                            options_str = ', '.join(options)
-                        else:
-                            options_str = options
-                        question += f"\n\nOptions: {options_str}"
-                    
-                    # Add note if present
-                    if current_question.get('notes'):
-                        question += f"\n({current_question['notes']})"
-                    
-                    # Update current stage
-                    stage_id = get_stage_for_question(step)
-                    if stage_id:
-                        state["current_stage"] = stage_id
-                else:
-                    question = "Thank you! You've completed all questions."
-                    state["is_completed"] = True
+                # Add options if it's a choice question
+                if current_question.get('options') and current_question['type'] in ['Multiple Choice', 'Multi-Select']:
+                    options = current_question['options']
+                    # Handle options as list or string
+                    if isinstance(options, list):
+                        options_str = ', '.join(options)
+                    else:
+                        options_str = options
+                    question += f"\n\nOptions: {options_str}"
+                
+                # Add note if present
+                if current_question.get('notes'):
+                    question += f"\n({current_question['notes']})"
+                
+                # Update current stage
+                stage_id = get_stage_for_question(step)
+                if stage_id:
+                    state["current_stage"] = stage_id
         
         # Add bot message to conversation
         bot_message = AIMessage(content=question)
@@ -249,43 +203,51 @@ class OnboardingWorkflow:
         data = last_message
         error = None
         
+        # Use AI-powered validation for intelligent response checking
         if validator_type == 'email':
             is_valid, data, error = validators.validate_email(last_message)
         elif validator_type == 'text' or validator_type == 'long_text':
-            is_valid, data, error = validators.validate_text(last_message)
+            # Use AI to validate if the response is meaningful and answers the question
+            is_valid, data, error = self._ai_validate_text_response(
+                question=current_question['text'],
+                response=last_message,
+                question_type=current_question['type']
+            )
         elif validator_type == 'boolean':
-            # Yes/No questions
-            is_valid, data, error = validators.validate_boolean(last_message)
+            # Yes/No questions - be flexible with responses
+            is_valid, data, error = self._ai_validate_boolean(last_message)
         elif validator_type == 'choice':
-            # Multiple choice - validate against options
+            # Multiple choice - use AI to match fuzzy responses
             options = current_question.get('options', '')
             if options:
-                # Handle options as list or comma-separated string
                 if isinstance(options, list):
                     valid_options = options
                 else:
                     valid_options = [opt.strip() for opt in options.split(',')]
-                is_valid, data, error = validators.validate_choice(last_message, valid_options)
+                is_valid, data, error = self._ai_validate_choice(last_message, valid_options)
             else:
                 is_valid, data, error = True, last_message, None
         elif validator_type == 'multi_select':
-            # Multi-select - validate against options
+            # Multi-select - use AI to understand multiple selections
             options = current_question.get('options', '')
             if options:
-                # Handle options as list or comma-separated string
                 if isinstance(options, list):
                     valid_options = options
                 else:
                     valid_options = [opt.strip() for opt in options.split(',')]
-                is_valid, data, error = validators.validate_multi_select(last_message, valid_options)
+                is_valid, data, error = self._ai_validate_multi_select(last_message, valid_options)
             else:
                 is_valid, data, error = True, last_message, None
         elif validator_type == 'scale':
             # Scale validation (1-5)
             is_valid, data, error = validators.validate_scale(last_message, 1, 5)
         else:
-            # Default text validation
-            is_valid, data, error = validators.validate_text(last_message)
+            # Default AI-powered text validation
+            is_valid, data, error = self._ai_validate_text_response(
+                question=current_question['text'],
+                response=last_message,
+                question_type=current_question['type']
+            )
         
         if is_valid:
             # Store the validated data using the field_name from config
@@ -565,6 +527,203 @@ class OnboardingWorkflow:
             state = self.ask_question_node(state)
         
         return state
+
+
+    def _ai_validate_text_response(self, question: str, response: str, question_type: str) -> tuple[bool, str, str]:
+        """
+        Use AI to validate if a text response appropriately answers the question.
+        
+        Returns:
+            (is_valid, cleaned_data, error_message)
+        """
+        try:
+            # Check minimum length
+            if len(response.strip()) < 2:
+                return False, response, "Please provide a more detailed answer."
+            
+            # Use LLM to validate if response makes sense
+            validation_prompt = f"""You are validating a response to an onboarding question.
+
+Question: {question}
+User's Response: {response}
+
+Task: Determine if this response appropriately answers the question.
+
+Rules:
+1. The response should be relevant to the question
+2. It should contain meaningful information (not just "yes", "no", or gibberish)
+3. For descriptive questions, accept any reasonable answer that addresses the topic
+4. Be lenient - if the user provided something reasonable, accept it
+
+Respond with ONLY:
+- "VALID" if the response is acceptable
+- "INVALID: [reason]" if the response is not acceptable
+
+Your response:"""
+            
+            result = self.llm.invoke(validation_prompt)
+            result_text = result.content.strip()
+            
+            if result_text.startswith("VALID"):
+                return True, response.strip(), None
+            else:
+                # Extract reason
+                reason = result_text.replace("INVALID:", "").strip()
+                return False, response, reason or "Please provide a more relevant answer to the question."
+                
+        except Exception as e:
+            logger.error(f"AI validation error: {e}")
+            # Fallback to basic validation
+            if len(response.strip()) >= 2:
+                return True, response.strip(), None
+            return False, response, "Please provide a more detailed answer."
+    
+    def _ai_validate_boolean(self, response: str) -> tuple[bool, str, str]:
+        """
+        Use AI to understand Yes/No responses with flexibility.
+        
+        Returns:
+            (is_valid, normalized_answer, error_message)
+        """
+        try:
+            response_lower = response.lower().strip()
+            
+            # Direct matches
+            if response_lower in ['yes', 'y', 'yeah', 'yep', 'sure', 'correct', 'true', 'affirmative']:
+                return True, 'Yes', None
+            elif response_lower in ['no', 'n', 'nope', 'nah', 'negative', 'false']:
+                return True, 'No', None
+            
+            # Use LLM for ambiguous cases
+            validation_prompt = f"""The user was asked a Yes/No question and responded: "{response}"
+
+Determine if this is:
+1. A "Yes" response (affirmative)
+2. A "No" response (negative)
+3. Unclear/Invalid
+
+Respond with ONLY one word: "YES", "NO", or "INVALID"
+
+Your response:"""
+            
+            result = self.llm.invoke(validation_prompt)
+            result_text = result.content.strip().upper()
+            
+            if result_text == "YES":
+                return True, 'Yes', None
+            elif result_text == "NO":
+                return True, 'No', None
+            else:
+                return False, response, "Please answer with 'Yes' or 'No'"
+                
+        except Exception as e:
+            logger.error(f"AI boolean validation error: {e}")
+            return False, response, "Please answer with 'Yes' or 'No'"
+    
+    def _ai_validate_choice(self, response: str, valid_options: list) -> tuple[bool, str, str]:
+        """
+        Use AI to match user response to available options (fuzzy matching).
+        
+        Returns:
+            (is_valid, matched_option, error_message)
+        """
+        try:
+            response_lower = response.lower().strip()
+            
+            # Direct match
+            for option in valid_options:
+                if response_lower == option.lower().strip():
+                    return True, option, None
+            
+            # Use LLM for fuzzy matching
+            options_str = ', '.join(valid_options)
+            validation_prompt = f"""The user must select ONE option from this list: {options_str}
+
+User's response: "{response}"
+
+Task: Match the user's response to the closest option from the list.
+
+Rules:
+1. If the response clearly matches one option, return that option EXACTLY as it appears in the list
+2. Accept partial matches (e.g., "Chiro" matches "Chiropractic")
+3. If unclear or no match, respond with "INVALID"
+
+Respond with ONLY the matched option name or "INVALID"
+
+Your response:"""
+            
+            result = self.llm.invoke(validation_prompt)
+            result_text = result.content.strip()
+            
+            # Check if result matches any option
+            for option in valid_options:
+                if result_text.lower() == option.lower().strip():
+                    return True, option, None
+            
+            if result_text.upper() == "INVALID":
+                return False, response, f"Please choose one from: {options_str}"
+            
+            # LLM returned something, trust it if it's close
+            if result_text in valid_options:
+                return True, result_text, None
+            
+            return False, response, f"Please choose one from: {options_str}"
+            
+        except Exception as e:
+            logger.error(f"AI choice validation error: {e}")
+            options_str = ', '.join(valid_options)
+            return False, response, f"Please choose one from: {options_str}"
+    
+    def _ai_validate_multi_select(self, response: str, valid_options: list) -> tuple[bool, str, str]:
+        """
+        Use AI to understand multiple selections.
+        
+        Returns:
+            (is_valid, matched_options, error_message)
+        """
+        try:
+            # Use LLM to extract multiple selections
+            options_str = ', '.join(valid_options)
+            validation_prompt = f"""The user can select MULTIPLE options from this list: {options_str}
+
+User's response: "{response}"
+
+Task: Extract all options mentioned in the user's response.
+
+Rules:
+1. Return a comma-separated list of matched options EXACTLY as they appear in the list
+2. Accept variations (e.g., "Insta" matches "Instagram")
+3. If no valid options found, return "INVALID"
+
+Respond with ONLY the matched options comma-separated or "INVALID"
+
+Your response:"""
+            
+            result = self.llm.invoke(validation_prompt)
+            result_text = result.content.strip()
+            
+            if result_text.upper() == "INVALID":
+                return False, response, f"Please select from: {options_str}"
+            
+            # Validate extracted options
+            extracted = [opt.strip() for opt in result_text.split(',')]
+            valid_extracted = []
+            
+            for ext in extracted:
+                for option in valid_options:
+                    if ext.lower() == option.lower().strip():
+                        valid_extracted.append(option)
+                        break
+            
+            if valid_extracted:
+                return True, ', '.join(valid_extracted), None
+            else:
+                return False, response, f"Please select from: {options_str}"
+                
+        except Exception as e:
+            logger.error(f"AI multi-select validation error: {e}")
+            options_str = ', '.join(valid_options)
+            return False, response, f"Please select from: {options_str}"
 
 
 # Global workflow instance
