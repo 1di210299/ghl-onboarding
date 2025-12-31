@@ -28,7 +28,8 @@ app = FastAPI(
     description="AI-powered client onboarding system for GoHighLevel agencies",
     version="1.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    redirect_slashes=False  # Disable automatic slash redirects
 )
 
 # Configure CORS
