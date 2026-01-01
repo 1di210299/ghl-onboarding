@@ -76,3 +76,190 @@
     @apply bg-gray-400;
   }
 }
+
+/* Phase completion styling */
+.phase-complete {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 24px;
+  border-radius: 16px;
+  margin: 16px 0;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+}
+
+.phase-complete .celebration-icon {
+  font-size: 48px;
+  text-align: center;
+  margin-bottom: 16px;
+  animation: bounce 1s ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.phase-complete h3 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  text-align: center;
+}
+
+.phase-complete .phase-info {
+  text-align: center;
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 16px;
+}
+
+.phase-complete .progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 16px 0 8px 0;
+}
+
+.phase-complete .progress-fill {
+  height: 100%;
+  background: white;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.phase-complete .progress-text {
+  text-align: center;
+  font-size: 14px;
+  opacity: 0.9;
+  margin: 8px 0 0 0;
+}
+
+.phase-complete .next-section {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.phase-complete .next-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.phase-complete .next-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+  margin: 0 0 4px 0;
+}
+
+.phase-complete .next-section h4 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.phase-complete .next-description {
+  font-size: 14px;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.phase-complete .final-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.phase-complete .trophy-icon {
+  font-size: 40px;
+}
+
+/* Welcome back styling */
+.welcome-back {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  padding: 32px;
+  border-radius: 16px;
+  margin: 16px 0;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
+  text-align: center;
+}
+
+.welcome-back .welcome-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  animation: wave 1.5s ease-in-out infinite;
+}
+
+@keyframes wave {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(20deg); }
+  75% { transform: rotate(-20deg); }
+}
+
+.welcome-back h3 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+}
+
+.welcome-back p {
+  font-size: 16px;
+  opacity: 0.95;
+  margin: 0 0 12px 0;
+}
+
+.welcome-back .resume-progress {
+  margin: 24px 0;
+}
+
+.welcome-back .progress-stats {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.welcome-back .completed-count {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.welcome-back .separator {
+  font-size: 32px;
+  opacity: 0.7;
+}
+
+.welcome-back .total-count {
+  font-size: 32px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.welcome-back .progress-label {
+  font-size: 14px;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.welcome-back .continue-prompt {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 24px 0 0 0;
+}

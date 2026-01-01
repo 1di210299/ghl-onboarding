@@ -121,11 +121,20 @@ async def start_onboarding(request: OnboardingStartRequest):
             _sessions[session_id] = initial_state
             
             # Add welcome back message
-            welcome_back = f"""👋 Welcome back! I see you started your onboarding but didn't finish.
-
-📊 You've completed {current_step} out of 48 questions.
-
-Let's pick up where you left off! Ready to continue? 🚀"""
+            welcome_back = f"""<div class='welcome-back'>
+<div class='welcome-icon'>👋</div>
+<h3>Welcome back!</h3>
+<p>I see you started your onboarding but didn't finish.</p>
+<div class='resume-progress'>
+  <div class='progress-stats'>
+    <span class='completed-count'>{current_step}</span>
+    <span class='separator'>/</span>
+    <span class='total-count'>48</span>
+  </div>
+  <p class='progress-label'>questions completed</p>
+</div>
+<p class='continue-prompt'>Let's pick up where you left off! Ready to continue?</p>
+</div>"""
             
             welcome_msg = AIMessage(content=welcome_back)
             initial_state["messages"].append(welcome_msg)
@@ -397,6 +406,10 @@ async def send_message(request: OnboardingMessageRequest):
         
         current_state = _sessions[session_id]
         
+        # Track number of messages before processing
+        from langchain_core.messages import AIMessage
+        messages_before = len([m for m in current_state["messages"] if isinstance(m, AIMessage)])
+        
         # Process message through workflow
         workflow = get_workflow()
         updated_state = await workflow.process_message(
@@ -410,10 +423,11 @@ async def send_message(request: OnboardingMessageRequest):
         # Update session
         _sessions[session_id] = updated_state
         
-        # Get bot's response (last AI message)
-        from langchain_core.messages import AIMessage
+        # Get all NEW AI messages (including phase completion + question)
         ai_messages = [m for m in updated_state["messages"] if isinstance(m, AIMessage)]
-        bot_message = ai_messages[-1].content if ai_messages else "I'm processing your response..."
+        new_ai_messages = ai_messages[messages_before:]  # Only new messages
+        bot_messages = [m.content for m in new_ai_messages]
+        bot_message = bot_messages[-1] if bot_messages else "I'm processing your response..."
         
         # Collect data for response (only non-None question fields)
         collected_data = {
@@ -465,11 +479,12 @@ async def send_message(request: OnboardingMessageRequest):
             # Fire and forget (don't wait for GHL sync)
             asyncio.create_task(sync_to_ghl())
         
-        logger.info(f"Processed message for session: {session_id}, step: {updated_state['current_step']}")
+        logger.info(f"Processed message for session: {session_id}, step: {updated_state['current_step']}, new messages: {len(bot_messages)}")
         
         return OnboardingMessageResponse(
             session_id=session_id,
             bot_message=bot_message,
+            bot_messages=bot_messages,
             current_step=updated_state["current_step"],
             current_stage=updated_state.get("current_stage"),
             total_questions=48,

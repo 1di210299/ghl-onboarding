@@ -141,15 +141,25 @@ export default function OnboardingChat({
       setCurrentStage(data.current_stage);
       setIsCompleted(data.is_completed);
 
-      // Add bot response
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: data.bot_message,
+      // Add all bot messages (phase completion + question)
+      if (data.bot_messages && data.bot_messages.length > 0) {
+        const newMessages = data.bot_messages.map((content: string) => ({
+          role: 'assistant' as const,
+          content,
           timestamp: new Date(),
-        },
-      ]);
+        }));
+        setMessages((prev) => [...prev, ...newMessages]);
+      } else {
+        // Fallback to single message
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'assistant',
+            content: data.bot_message,
+            timestamp: new Date(),
+          },
+        ]);
+      }
 
       // If completed, call onComplete callback
       if (data.is_completed && onComplete && clientId) {
@@ -283,10 +293,16 @@ export default function OnboardingChat({
               className={`max-w-[80%] rounded-lg px-4 py-3 ${
                 message.role === 'user'
                   ? 'bg-blue-600 text-white'
+                  : message.content.includes('phase-complete') || message.content.includes('welcome-back')
+                  ? 'p-0 bg-transparent'
                   : 'bg-gray-100 text-gray-900'
               }`}
             >
-              <p className="whitespace-pre-wrap">{message.content}</p>
+              {message.content.includes('<div') ? (
+                <div dangerouslySetInnerHTML={{ __html: message.content }} />
+              ) : (
+                <p className="whitespace-pre-wrap">{message.content}</p>
+              )}
               <p
                 className={`text-xs mt-1 ${
                   message.role === 'user' ? 'text-blue-100' : 'text-gray-500'

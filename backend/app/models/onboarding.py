@@ -64,6 +64,7 @@ class OnboardingMessageResponse(BaseModel):
     
     session_id: str = Field(..., description="Session identifier")
     bot_message: str = Field(..., description="Bot's response")
+    bot_messages: list = Field(default=[], description="All new bot messages (for phase completion + question)")
     current_step: int = Field(..., description="Current step in onboarding")
     current_stage: Optional[str] = Field(None, description="Current stage name")
     total_questions: int = Field(default=48, description="Total number of questions")

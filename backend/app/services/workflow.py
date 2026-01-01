@@ -336,14 +336,31 @@ class OnboardingWorkflow:
                 stage_num = stage_info['stage_number']
                 total_stages = stage_info['total_stages']
                 
-                progress_message = f"""🎉 Great work! You've completed **{completed['name']}** (Phase {stage_num}/{total_stages})!
-
-📊 Progress: {stage_info['questions_completed']}/{stage_info['total_questions']} questions answered"""
+                progress_message = f"""<div class='phase-complete'>
+<div class='celebration-icon'>🎉</div>
+<h3>Great work! You've completed <strong>{completed['name']}</strong></h3>
+<p class='phase-info'>Phase {stage_num} of {total_stages}</p>
+<div class='progress-bar'>
+  <div class='progress-fill' style='width: {(stage_info['questions_completed']/stage_info['total_questions'])*100}%'></div>
+</div>
+<p class='progress-text'>{stage_info['questions_completed']} of {stage_info['total_questions']} questions completed</p>"""
                 
                 if next_stage:
-                    progress_message += f"\n\n✨ Next up: **{next_stage['name']}**\n_{next_stage['description']}_\n\nLet's continue! 💪"
+                    progress_message += f"""\n<div class='next-section'>
+  <div class='next-icon'>✨</div>
+  <div>
+    <p class='next-label'>Next up:</p>
+    <h4>{next_stage['name']}</h4>
+    <p class='next-description'>{next_stage['description']}</p>
+  </div>
+</div>"""
                 else:
-                    progress_message += "\n\n🏆 Amazing! You're almost done! Just a few more questions..."
+                    progress_message += """\n<div class='final-section'>
+  <div class='trophy-icon'>🏆</div>
+  <p>Amazing! You're almost done! Just a few more questions...</p>
+</div>"""
+                
+                progress_message += "\n</div>"
                 
                 # Add progress message to conversation
                 progress_msg = AIMessage(content=progress_message)
