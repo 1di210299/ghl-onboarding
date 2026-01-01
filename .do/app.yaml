@@ -133,3 +133,7 @@ services:
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
         value: ${SUPABASE_ANON_KEY}
         scope: RUN_AND_BUILD_TIME
+      
+      - key: NEXT_PUBLIC_GHL_LOCATION_ID
+        value: ${GHL_LOCATION_ID}
+        scope: RUN_AND_BUILD_TIME

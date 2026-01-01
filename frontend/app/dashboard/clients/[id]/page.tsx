@@ -91,10 +91,16 @@ export default function ClientDetailPage() {
                     <p className="text-sm text-gray-600 mb-1">Contact ID</p>
                     <p className="font-mono text-sm">{client.ghl_contact_id}</p>
                   </div>
-                  <Button variant="outline" size="sm" className="w-full">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    View in GHL
-                  </Button>
+                  <Link
+                    href={`https://app.gohighlevel.com/location/${process.env.NEXT_PUBLIC_GHL_LOCATION_ID || ''}/contacts/detail/${client.ghl_contact_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="outline" size="sm" className="w-full">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      View in GHL
+                    </Button>
+                  </Link>
                 </div>
               </div>
             )}
