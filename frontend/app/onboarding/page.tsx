@@ -72,7 +72,7 @@ export default function OnboardingPage() {
           </div>
 
           <button
-            onClick={() => window.location.href = '/'}
+            onClick={() => window.location.reload()}
             className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
             Back to Home
