@@ -85,30 +85,30 @@ export default function OnboardingPage() {
   if (showForm) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full border border-purple-100">
+        <div className="bg-white rounded-2xl shadow-2xl p-12 max-w-2xl w-full border border-purple-100">
           {/* Karen's Welcome Header */}
-          <div className="text-center mb-8">
-            <div className="inline-block mb-4">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                <span className="text-4xl">✨</span>
+          <div className="text-center mb-10">
+            <div className="inline-block mb-6">
+              <div className="w-32 h-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                <span className="text-7xl">✨</span>
               </div>
             </div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
               Hi! I'm Karen 👋
             </h1>
-            <p className="text-gray-700 text-lg font-medium mb-2">
+            <p className="text-gray-700 text-2xl font-medium mb-3">
               Your AI Assistant from Staffless Practice
             </p>
-            <p className="text-gray-600 text-sm leading-relaxed">
+            <p className="text-gray-600 text-lg leading-relaxed">
               I'm so excited to help you set up your practice! Let's get to know each other - this will be fun! 🎉
             </p>
           </div>
 
-          <form onSubmit={handleStart} className="space-y-5">
+          <form onSubmit={handleStart} className="space-y-6">
             <div>
               <label
                 htmlFor="practiceName"
-                className="block text-sm font-semibold text-gray-700 mb-2"
+                className="block text-lg font-semibold text-gray-700 mb-3"
               >
                 What's your practice name? 🏥
               </label>
@@ -120,7 +120,7 @@ export default function OnboardingPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, practiceName: e.target.value })
                 }
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                className="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                 placeholder="e.g., Healthy Life Medical"
               />
             </div>
@@ -128,7 +128,7 @@ export default function OnboardingPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-semibold text-gray-700 mb-2"
+                className="block text-lg font-semibold text-gray-700 mb-3"
               >
                 What's your email address? 📧
               </label>
@@ -140,24 +140,24 @@ export default function OnboardingPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                className="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                 placeholder="contact@practice.com"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-pink-700 transform hover:scale-[1.02] transition-all shadow-lg hover:shadow-xl"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-5 rounded-xl font-bold text-xl hover:from-purple-700 hover:to-pink-700 transform hover:scale-[1.02] transition-all shadow-lg hover:shadow-xl"
             >
               Let's Get Started! 🚀
             </button>
           </form>
 
-          <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100">
-            <p className="text-center text-sm text-gray-700">
-              <span className="font-semibold">⏱️ Takes about 15-20 minutes</span>
+          <div className="mt-8 p-5 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+            <p className="text-center text-base text-gray-700">
+              <span className="font-semibold text-lg">⏱️ Takes about 15-20 minutes</span>
               <br />
-              <span className="text-xs text-gray-600 mt-1 block">
+              <span className="text-sm text-gray-600 mt-2 block">
                 Don't worry - you can skip any question you're not comfortable with! 💜
               </span>
             </p>
@@ -168,16 +168,14 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
-      <div className="max-w-4xl mx-auto py-8">
-        <div className="h-[calc(100vh-8rem)]">
-          <OnboardingChat
-            tenantId={formData.tenantId}
-            practiceName={formData.practiceName}
-            email={formData.email}
-            onComplete={handleComplete}
-          />
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
+      <div className="max-w-7xl mx-auto h-[calc(100vh-3rem)]">
+        <OnboardingChat
+          tenantId={formData.tenantId}
+          practiceName={formData.practiceName}
+          email={formData.email}
+          onComplete={handleComplete}
+        />
       </div>
     </div>
   );

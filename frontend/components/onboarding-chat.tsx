@@ -248,25 +248,25 @@ export default function OnboardingChat({
   const progress = totalQuestions > 0 ? (currentStep / totalQuestions) * 100 : 0;
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-lg shadow-lg">
+    <div className="flex flex-col h-full bg-white rounded-2xl shadow-2xl">
       {/* Header */}
-      <div className="px-6 py-4 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
+      <div className="px-8 py-6 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-2xl">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold">Client Onboarding</h2>
-            <p className="text-sm text-blue-100 mt-1">
+            <h2 className="text-3xl font-bold">Client Onboarding</h2>
+            <p className="text-lg text-blue-100 mt-2">
               {currentStage} • Question {currentStep + 1} of {totalQuestions}
             </p>
           </div>
           {isCompleted && (
-            <CheckCircle2 className="w-8 h-8 text-green-300" />
+            <CheckCircle2 className="w-12 h-12 text-green-300" />
           )}
         </div>
         
         {/* Progress Bar */}
-        <div className="mt-3 bg-white/20 rounded-full h-2">
+        <div className="mt-4 bg-white/20 rounded-full h-3">
           <div
-            className="bg-white rounded-full h-2 transition-all duration-300"
+            className="bg-white rounded-full h-3 transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -274,14 +274,14 @@ export default function OnboardingChat({
 
       {/* Error Banner */}
       {error && (
-        <div className="px-6 py-3 bg-red-50 border-b border-red-200 flex items-center gap-2 text-red-800">
-          <AlertCircle className="w-5 h-5" />
-          <span className="text-sm">{error}</span>
+        <div className="px-8 py-4 bg-red-50 border-b border-red-200 flex items-center gap-3 text-red-800">
+          <AlertCircle className="w-6 h-6" />
+          <span className="text-base">{error}</span>
         </div>
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-8 py-6 space-y-5">
         {messages.map((message, index) => (
           <div
             key={index}
@@ -290,15 +290,15 @@ export default function OnboardingChat({
             }`}
           >
             <div
-              className={`max-w-[80%] rounded-lg px-4 py-3 ${
+              className={`max-w-[85%] rounded-xl px-6 py-4 ${
                 message.role === 'user'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-blue-600 text-white text-lg'
                   : message.content.includes('phase-complete') || 
                     message.content.includes('welcome-back') ||
                     message.content.includes('karen-intro') ||
                     message.content.includes('karen-complete')
                   ? 'p-0 bg-transparent'
-                  : 'bg-gray-100 text-gray-900'
+                  : 'bg-gray-100 text-gray-900 text-lg'
               }`}
             >
               {message.content.includes('<div') ? (
@@ -307,7 +307,7 @@ export default function OnboardingChat({
                 <p className="whitespace-pre-wrap">{message.content}</p>
               )}
               <p
-                className={`text-xs mt-1 ${
+                className={`text-sm mt-2 ${
                   message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
                 }`}
               >
@@ -319,9 +319,9 @@ export default function OnboardingChat({
         
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-gray-100 rounded-lg px-4 py-3 flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin text-gray-600" />
-              <span className="text-gray-600 text-sm">Thinking...</span>
+            <div className="bg-gray-100 rounded-xl px-6 py-4 flex items-center gap-3">
+              <Loader2 className="w-6 h-6 animate-spin text-gray-600" />
+              <span className="text-gray-600 text-lg">Thinking...</span>
             </div>
           </div>
         )}
@@ -331,18 +331,18 @@ export default function OnboardingChat({
 
       {/* Input */}
       {!isCompleted && (
-        <div className="px-6 py-4 border-t bg-gray-50 rounded-b-lg">
-          <div className="flex gap-2">
+        <div className="px-8 py-6 border-t bg-gray-50 rounded-b-2xl">
+          <div className="flex gap-3">
             <button
               onClick={autoFillResponse}
               disabled={isLoading || isAutoFilling || !sessionId}
-              className="px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-6 py-4 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               title="Auto-fill with AI-generated answer"
             >
               {isAutoFilling ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-6 h-6 animate-spin" />
               ) : (
-                <Sparkles className="w-5 h-5" />
+                <Sparkles className="w-6 h-6" />
               )}
             </button>
             <input
@@ -353,18 +353,18 @@ export default function OnboardingChat({
               onKeyPress={handleKeyPress}
               placeholder="Type your answer..."
               disabled={isLoading || !sessionId}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="flex-1 px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
             <button
               onClick={sendMessage}
               disabled={!input.trim() || isLoading || !sessionId}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-6 h-6 animate-spin" />
               ) : (
                 <>
-                  <Send className="w-5 h-5" />
+                  <Send className="w-6 h-6" />
                   <span className="hidden sm:inline">Send</span>
                 </>
               )}
@@ -375,12 +375,12 @@ export default function OnboardingChat({
 
       {/* Completion Message */}
       {isCompleted && (
-        <div className="px-6 py-4 border-t bg-green-50 rounded-b-lg">
-          <div className="flex items-center gap-3 text-green-800">
-            <CheckCircle2 className="w-6 h-6" />
+        <div className="px-8 py-6 border-t bg-green-50 rounded-b-2xl">
+          <div className="flex items-center gap-4 text-green-800">
+            <CheckCircle2 className="w-8 h-8" />
             <div>
-              <p className="font-semibold">Onboarding Complete!</p>
-              <p className="text-sm text-green-700">
+              <p className="font-semibold text-xl">Onboarding Complete!</p>
+              <p className="text-base text-green-700">
                 All information has been collected successfully.
               </p>
             </div>
