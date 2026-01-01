@@ -351,11 +351,29 @@ async def start_onboarding(request: OnboardingStartRequest):
         logger.info("Getting first question...")
         from app.services.workflow import get_question_by_index
         from langchain_core.messages import AIMessage
+        
+        # Add Karen's introduction first
+        karen_intro = AIMessage(content="""<div class='karen-intro'>
+<div class='karen-avatar'>✨</div>
+<h3>Hi! I'm Karen, your personal AI assistant from Staffless Practice! 🎉</h3>
+<p>I'm so excited to meet you! I'll be with you throughout your entire journey with us - think of me as your friendly Front Desk AI Bot.</p>
+<p>As we get to know each other, I'll learn all about your practice so I can help you with:</p>
+<ul>
+  <li>🏥 Your program and practice management</li>
+  <li>🌐 Your website and online presence</li>
+  <li>📱 Social media and marketing</li>
+  <li>✨ And so much more!</li>
+</ul>
+<p>I have about 48 questions to learn about you and your practice. Don't worry - we'll go at your pace! If you're not comfortable answering something, just let me know and we'll skip it.</p>
+<p class='karen-ready'>Ready to get started? Let's build something amazing together! 💪</p>
+</div>""")
+        initial_state["messages"].append(karen_intro)
+        
         first_q = get_question_by_index(0)
         logger.info(f"First question retrieved: {first_q['id']}")
-        first_question = first_q['text']
+        first_question = "Great! Let's start with the basics. " + first_q['text']
         if first_q.get('options'):
-            first_question += f"\n\nOptions: {first_q['options']}"
+            first_question += f"\n\n✨ Choose one: {first_q['options']}"
         
         # Add first question to initial state messages
         initial_state["messages"].append(AIMessage(content=first_question))

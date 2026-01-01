@@ -172,21 +172,36 @@ class OnboardingWorkflow:
         
         # Check if we've reached the end
         if step >= TOTAL_QUESTIONS:
-            question = "Thank you for completing the onboarding! Your information has been saved."
+            question = """<div class='karen-complete'>
+<div class='celebration-icon'>🎊</div>
+<h3>Yay! We did it! 🎉</h3>
+<p>Thank you so much for taking the time to share all about your practice with me. I'm so excited to be part of your journey!</p>
+<p>Your information is safely saved, and I'm already learning how to best support you. Can't wait to help you build something incredible! 💫</p>
+<p class='karen-signature'>- Karen, your Staffless Practice AI Assistant</p>
+</div>"""
             state["is_completed"] = True
         elif state.get("needs_clarification"):
-            # If we need clarification, ask for it
-            question = state.get("last_validation_error", "I didn't quite understand that. Could you please try again?")
+            # If we need clarification, ask for it with positivity
+            error_msg = state.get("last_validation_error", "")
+            question = f"Hmm, {error_msg}\n\nNo worries though! Could you help me out by rephrasing that? Or if you'd prefer to skip this one, just say 'skip'! 😊"
             state["needs_clarification"] = False
         else:
             # Get the question from config
             current_question = get_question_by_index(step)
             
             if not current_question:
-                question = "Something went wrong. Let's try again."
+                question = "Oops! Something went wrong on my end. Let's try that again! 🔄"
             else:
-                # ALL 48 QUESTIONS MUST BE ASKED - No skipping
-                question = current_question['text']
+                # Make questions conversational with Karen's personality
+                base_question = current_question['text']
+                
+                # Add conversational prefixes based on question type
+                if step == 0:
+                    question = f"Great! Let's start with the basics. {base_question}"
+                elif step < 9:
+                    question = base_question
+                else:
+                    question = base_question
                 
                 # Add options if it's a choice question
                 if current_question.get('options') and current_question['type'] in ['Multiple Choice', 'Multi-Select']:
@@ -196,11 +211,21 @@ class OnboardingWorkflow:
                         options_str = ', '.join(options)
                     else:
                         options_str = options
-                    question += f"\n\nOptions: {options_str}"
+                    
+                    if current_question['type'] == 'Multi-Select':
+                        question += f"\n\n✨ You can choose one or more: {options_str}"
+                    else:
+                        question += f"\n\n✨ Choose one: {options_str}"
                 
-                # Add note if present
+                # Add skip reminder for non-required questions
+                if not current_question.get('required', True):
+                    question += "\n\n💡 (Feel free to skip this if you'd prefer - just type 'skip'!)"
+                
+                # Add note if present (but make it friendly)
                 if current_question.get('notes'):
-                    question += f"\n({current_question['notes']})"
+                    note = current_question['notes']
+                    if note.lower() != 'optional':  # Don't repeat optional
+                        question += f"\n({note})"
                 
                 # Update current stage
                 stage_id = get_stage_for_question(step)
@@ -218,6 +243,8 @@ class OnboardingWorkflow:
     def validate_response_node(self, state: OnboardingState) -> Dict[str, Any]:
         """
         Node that validates the user's response.
+        Uses AI-powered validation for flexible, natural language processing.
+        Karen's personality: Positive, understanding, allows skipping.
         
         Args:
             state: Current conversation state
@@ -226,20 +253,44 @@ class OnboardingWorkflow:
             Updated state with validation results
         """
         step = state["current_step"]
-        
-        # Get the last user message
-        user_messages = [m for m in state["messages"] if isinstance(m, HumanMessage)]
-        if not user_messages:
-            return state
-        
-        last_message = user_messages[-1].content
-        
-        # Get current question config
         current_question = get_question_by_index(step)
+        
         if not current_question:
             state["needs_clarification"] = True
-            state["last_validation_error"] = "Error loading question. Please try again."
+            state["last_validation_error"] = "I can't find that question in my list"
             return state
+        
+        # Get the user's last message
+        user_messages = [msg for msg in state["messages"] if hasattr(msg, "type") and msg.type == "human"]
+        if not user_messages:
+            state["needs_clarification"] = True
+            state["last_validation_error"] = "I didn't catch your response"
+            return state
+        
+        user_response = user_messages[-1].content.strip()
+        field_name = current_question['field_name']
+        validator_type = current_question.get('validator', 'text')
+        question_type = current_question['type']
+        
+        # Check if user wants to skip (for non-required questions)
+        skip_keywords = ['skip', 'pass', 'next', "i don't want to answer", "prefer not to say", "n/a", "not applicable", "no answer"]
+        if not current_question.get('required', True) and any(keyword in user_response.lower() for keyword in skip_keywords):
+            # Allow skip for optional questions
+            state[field_name] = "(Skipped)"
+            state["current_step"] = step + 1
+            state["needs_clarification"] = False
+            state["last_validation_error"] = None
+            logger.info(f"Step {step}: User chose to skip optional question {field_name}")
+            return state
+        
+        # Check if response is meaningful (not just whitespace or very short)
+        if len(user_response) < 1:
+            state["needs_clarification"] = True
+            state["last_validation_error"] = "I didn't get that"
+            return state
+        
+        # Use user_response (not last_message) for consistency
+        last_message = user_response
         
         # Validate based on question type and validator
         validator_type = current_question.get('validator', 'text')
@@ -302,9 +353,13 @@ class OnboardingWorkflow:
             state["last_validation_error"] = None
             logger.info(f"Step {step}: Validation successful for {field_name}")
         else:
-            # Need clarification
+            # Need clarification - make error message friendly
             state["needs_clarification"] = True
-            state["last_validation_error"] = error
+            # Karen's friendly error rephrasing
+            if "I didn't get" in error or "didn't quite" in error:
+                state["last_validation_error"] = error
+            else:
+                state["last_validation_error"] = f"I {error.lower()}" if not error.startswith("I") else error
             logger.warning(f"Step {step}: Validation failed - {error}")
         
         return state
@@ -330,6 +385,21 @@ class OnboardingWorkflow:
             logger.info(f"save_data_node: is_complete={is_complete}, stage_info={stage_info}")
             
             if is_complete:
+                # Karen's celebratory messages for each phase
+                karen_celebrations = {
+                    1: "Woohoo! 🎊 You crushed the basics!",
+                    2: "Awesome! 💪 Your team and tech info is locked in!",
+                    3: "Amazing! ✨ Your brand identity is shining through!",
+                    4: "Incredible! 🚀 We've got your complete picture now!"
+                }
+                
+                karen_encouragement = {
+                    1: "You're doing great! Let's keep this momentum going!",
+                    2: "Love your energy! We're building something special here!",
+                    3: "This is fantastic! Your vision is really coming together!",
+                    4: "You're a rockstar! Almost there!"
+                }
+                
                 # Add a progress message to celebrate completing the stage
                 completed = stage_info['completed_stage']
                 next_stage = stage_info['next_stage']
@@ -338,12 +408,13 @@ class OnboardingWorkflow:
                 
                 progress_message = f"""<div class='phase-complete'>
 <div class='celebration-icon'>🎉</div>
-<h3>Great work! You've completed <strong>{completed['name']}</strong></h3>
-<p class='phase-info'>Phase {stage_num} of {total_stages}</p>
+<h3>{karen_celebrations.get(stage_num, 'Great work!')} You've completed <strong>{completed['name']}</strong></h3>
+<p class='phase-info'>Phase {stage_num} of {total_stages} ✓</p>
 <div class='progress-bar'>
   <div class='progress-fill' style='width: {(stage_info['questions_completed']/stage_info['total_questions'])*100}%'></div>
 </div>
-<p class='progress-text'>{stage_info['questions_completed']} of {stage_info['total_questions']} questions completed</p>"""
+<p class='progress-text'>{stage_info['questions_completed']} of {stage_info['total_questions']} questions completed 🎯</p>
+<p class='karen-encourage'>{karen_encouragement.get(stage_num, 'Keep it up!')}</p>"""
                 
                 if next_stage:
                     progress_message += f"""\n<div class='next-section'>
@@ -357,7 +428,7 @@ class OnboardingWorkflow:
                 else:
                     progress_message += """\n<div class='final-section'>
   <div class='trophy-icon'>🏆</div>
-  <p>Amazing! You're almost done! Just a few more questions...</p>
+  <p>Amazing! You're doing incredible! Just a few more questions and we're done!</p>
 </div>"""
                 
                 progress_message += "\n</div>"

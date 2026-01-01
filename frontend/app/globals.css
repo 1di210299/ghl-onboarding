@@ -263,3 +263,108 @@
   font-weight: 500;
   margin: 24px 0 0 0;
 }
+
+/* Karen Introduction Styles */
+.karen-intro {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 32px;
+  border-radius: 16px;
+  margin: 16px 0;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.karen-intro .karen-avatar {
+  font-size: 64px;
+  text-align: center;
+  margin-bottom: 16px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.karen-intro h3 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+.karen-intro p {
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+  opacity: 0.95;
+}
+
+.karen-intro ul {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+}
+
+.karen-intro ul li {
+  padding: 8px 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.karen-intro .karen-ready {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  margin: 24px 0 0 0;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Karen Completion Styles */
+.karen-complete {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 32px;
+  border-radius: 16px;
+  margin: 16px 0;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.karen-complete .celebration-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.karen-complete h3 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+}
+
+.karen-complete p {
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+  opacity: 0.95;
+}
+
+.karen-complete .karen-signature {
+  font-style: italic;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Phase complete encouragement */
+.phase-complete .karen-encourage {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 16px 0 0 0;
+  font-style: italic;
+  opacity: 0.95;
+}
