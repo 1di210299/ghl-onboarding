@@ -470,10 +470,30 @@ async def send_message(request: OnboardingMessageRequest):
                     if result["success"]:
                         # Update database with GHL contact ID and mark as completed
                         try:
-                            supabase.service.table("clients").update({
-                                "ghl_contact_id": result["contact_id"],
-                                "onboarding_completed": True
-                            }).eq("id", current_state["client_id"]).execute()
+                            # Check if ghl_contact_id already exists for another client
+                            existing = supabase.service.table("clients").select("id").eq(
+                                "ghl_contact_id", result["contact_id"]
+                            ).execute()
+                            
+                            if existing.data and len(existing.data) > 0:
+                                existing_client_id = existing.data[0]["id"]
+                                if existing_client_id != current_state["client_id"]:
+                                    # GHL contact already linked to different client, just mark completed
+                                    logger.warning(f"GHL contact {result['contact_id']} already linked to client {existing_client_id}")
+                                    supabase.service.table("clients").update({
+                                        "onboarding_completed": True
+                                    }).eq("id", current_state["client_id"]).execute()
+                                else:
+                                    # Same client, just mark as completed (already has ghl_contact_id)
+                                    supabase.service.table("clients").update({
+                                        "onboarding_completed": True
+                                    }).eq("id", current_state["client_id"]).execute()
+                            else:
+                                # New GHL contact, save both
+                                supabase.service.table("clients").update({
+                                    "ghl_contact_id": result["contact_id"],
+                                    "onboarding_completed": True
+                                }).eq("id", current_state["client_id"]).execute()
                             
                             logger.info(f"Successfully synced to GHL. Contact ID: {result['contact_id']}")
                         except Exception as db_error:
