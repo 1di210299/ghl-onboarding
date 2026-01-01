@@ -59,8 +59,10 @@ async def start_onboarding(request: OnboardingStartRequest):
             onboarding_data = existing_client.get("onboarding_data", {})
             current_step = onboarding_data.get("current_step", 0)
             messages = onboarding_data.get("messages", [])
+            saved_answers = onboarding_data.get("answers", {})  # NEW: Get indexed answers
             
             logger.info(f"Found incomplete onboarding for client {client_id}, resuming from step {current_step}")
+            logger.info(f"Restoring {len(saved_answers)} saved answers")
             
             # Generate new session for resuming
             session_id = f"sess_{uuid.uuid4().hex[:16]}"
@@ -118,6 +120,12 @@ async def start_onboarding(request: OnboardingStartRequest):
                 "q48_notes": None
             }
             
+            # Restore saved answers from indexed data
+            for field_name, value in saved_answers.items():
+                if field_name in initial_state:
+                    initial_state[field_name] = value
+            
+            logger.info(f"Restored state with {len([k for k,v in initial_state.items() if k.startswith('q') and v is not None])} answered questions")
             _sessions[session_id] = initial_state
             
             # Add welcome back message

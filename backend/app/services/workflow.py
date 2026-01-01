@@ -504,12 +504,37 @@ class OnboardingWorkflow:
             if digital_growth_data:
                 update_data["digital_growth_data"] = digital_growth_data
             
-            # Update onboarding_data with conversation history
+            # Build indexed answers dictionary (all 48 questions)
+            answers = {}
+            all_question_fields = [
+                # Quick Start (1-9)
+                'q1_admin', 'q2_culture', 'q3_legal', 'q4_legal', 'q5_admin', 
+                'q6_admin', 'q7_suite_setup', 'q8_suite_setup', 'q9_admin',
+                # Team & Tech (10-16)
+                'q10_team', 'q11_client_lead', 'q12_communication', 'q13_readiness', 
+                'q14_marketing', 'q15_marketing', 'q16_stack',
+                # Identity & Brand (17-28)
+                'q17_practice_type', 'q18_ideal_client', 'q19_boundaries', 'q20_messaging',
+                'q21_messaging', 'q22_brand_voice', 'q23_brand_voice', 'q24_brand',
+                'q25_brand', 'q26_brand', 'q27_brand', 'q28_brand',
+                # Digital & Growth (29-48)
+                'q29_website', 'q30_website', 'q31_website', 'q32_website', 'q33_website',
+                'q34_social', 'q35_social_ig', 'q36_social_fb', 'q37_social_li', 'q38_blog',
+                'q39_suite_model', 'q40_saya', 'q41_seo', 'q42_ads', 'q43_growth',
+                'q44_growth', 'q45_growth', 'q46_risk', 'q47_success', 'q48_notes'
+            ]
+            
+            for field_name in all_question_fields:
+                if state.get(field_name) is not None:
+                    answers[field_name] = state[field_name]
+            
+            # Update onboarding_data with optimized hybrid structure
+            from datetime import datetime
             messages_data = [
                 {
                     "role": "assistant" if isinstance(m, AIMessage) else "user",
                     "content": m.content,
-                    "timestamp": m.additional_kwargs.get("timestamp", "")
+                    "timestamp": datetime.utcnow().isoformat()
                 }
                 for m in state["messages"]
             ]
@@ -518,7 +543,8 @@ class OnboardingWorkflow:
                 "session_id": state["session_id"],
                 "current_step": state["current_step"],
                 "current_stage": state.get("current_stage"),
-                "messages": messages_data
+                "messages": messages_data,
+                "answers": answers  # NEW: Indexed answers for fast queries
             }
             
             # Update in Supabase
