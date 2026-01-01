@@ -250,11 +250,11 @@ export default function OnboardingChat({
   return (
     <div className="flex flex-col h-full bg-white rounded-2xl shadow-2xl">
       {/* Header */}
-      <div className="px-8 py-6 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-2xl">
+      <div className="px-8 py-6 border-b bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-2xl">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold">Client Onboarding</h2>
-            <p className="text-lg text-blue-100 mt-2">
+            <p className="text-lg text-purple-100 mt-2">
               {currentStage} • Question {currentStep + 1} of {totalQuestions}
             </p>
           </div>
@@ -292,7 +292,7 @@ export default function OnboardingChat({
             <div
               className={`max-w-[85%] rounded-xl px-6 py-4 ${
                 message.role === 'user'
-                  ? 'bg-blue-600 text-white text-lg'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white text-lg'
                   : message.content.includes('phase-complete') || 
                     message.content.includes('welcome-back') ||
                     message.content.includes('karen-intro') ||
@@ -308,7 +308,7 @@ export default function OnboardingChat({
               )}
               <p
                 className={`text-sm mt-2 ${
-                  message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
+                  message.role === 'user' ? 'text-purple-100' : 'text-gray-500'
                 }`}
               >
                 {message.timestamp.toLocaleTimeString()}
@@ -353,12 +353,12 @@ export default function OnboardingChat({
               onKeyPress={handleKeyPress}
               placeholder="Type your answer..."
               disabled={isLoading || !sessionId}
-              className="flex-1 px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="flex-1 px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
             <button
               onClick={sendMessage}
               disabled={!input.trim() || isLoading || !sessionId}
-              className="px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-lg font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {isLoading ? (
                 <Loader2 className="w-6 h-6 animate-spin" />
