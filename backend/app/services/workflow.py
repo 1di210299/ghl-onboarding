@@ -218,7 +218,18 @@ class OnboardingWorkflow:
                         question += f"\n\n✨ Choose one: {options_str}"
                 
                 # Karen is flexible - ALL questions can be skipped if user prefers
-                question += "\n\n💡 (Not comfortable answering? Just say 'skip' and we'll move on!)"
+                # Vary the skip reminder messages to keep it natural
+                skip_reminders = [
+                    "💡 (Not comfortable answering? Just say 'skip' and we'll move on!)",
+                    "💡 (Feel free to skip this one if you'd prefer!)",
+                    "💡 (No pressure - you can always skip and come back to this later!)",
+                    "💡 (Not sure? That's okay! Just type 'skip' if you want to move ahead!)",
+                    "💡 (Want to skip? No worries at all - just let me know!)",
+                    "💡 (You can skip any question - just say the word!)"
+                ]
+                # Use step number to select reminder (consistent but varied)
+                reminder_index = step % len(skip_reminders)
+                question += f"\n\n{skip_reminders[reminder_index]}"
                 
                 # Add note if present (but make it friendly)
                 if current_question.get('notes'):

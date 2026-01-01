@@ -27,6 +27,7 @@ export default function OnboardingChat({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [clientId, setClientId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
@@ -107,7 +108,7 @@ export default function OnboardingChat({
   }, [tenantId, practiceName, email]);
 
   const sendMessage = async () => {
-    if (!input.trim() || !sessionId || isLoading) return;
+    if (!input.trim() || !sessionId || isLoading || isStreaming) return;
 
     const userMessage = input.trim();
     setInput('');
@@ -141,24 +142,15 @@ export default function OnboardingChat({
       setCurrentStage(data.current_stage);
       setIsCompleted(data.is_completed);
 
-      // Add all bot messages (phase completion + question)
-      if (data.bot_messages && data.bot_messages.length > 0) {
-        const newMessages = data.bot_messages.map((content: string) => ({
-          role: 'assistant' as const,
-          content,
-          timestamp: new Date(),
-        }));
-        setMessages((prev) => [...prev, ...newMessages]);
-      } else {
-        // Fallback to single message
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: 'assistant',
-            content: data.bot_message,
-            timestamp: new Date(),
-          },
-        ]);
+      setIsLoading(false);
+
+      // Stream bot messages with typing effect
+      const messagesToStream = data.bot_messages && data.bot_messages.length > 0 
+        ? data.bot_messages 
+        : [data.bot_message];
+
+      for (const messageContent of messagesToStream) {
+        await streamMessage(messageContent);
       }
 
       // If completed, call onComplete callback
@@ -178,10 +170,51 @@ export default function OnboardingChat({
           timestamp: new Date(),
         },
       ]);
-    } finally {
       setIsLoading(false);
+    } finally {
       inputRef.current?.focus();
     }
+  };
+
+  // Stream message with typing effect
+  const streamMessage = async (content: string): Promise<void> => {
+    return new Promise((resolve) => {
+      setIsStreaming(true);
+      
+      // Add empty message that we'll populate
+      const messageIndex = messages.length;
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: '',
+          timestamp: new Date(),
+        },
+      ]);
+
+      let currentIndex = 0;
+      const words = content.split(' ');
+      
+      // Stream word by word for smoother effect
+      const interval = setInterval(() => {
+        if (currentIndex < words.length) {
+          const newContent = words.slice(0, currentIndex + 1).join(' ');
+          setMessages((prev) => {
+            const updated = [...prev];
+            updated[updated.length - 1] = {
+              ...updated[updated.length - 1],
+              content: newContent,
+            };
+            return updated;
+          });
+          currentIndex++;
+        } else {
+          clearInterval(interval);
+          setIsStreaming(false);
+          resolve();
+        }
+      }, 30); // 30ms per word for smooth typing effect
+    });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -317,11 +350,13 @@ export default function OnboardingChat({
           </div>
         ))}
         
-        {isLoading && (
+        {(isLoading || isStreaming) && (
           <div className="flex justify-start">
             <div className="bg-gray-100 rounded-xl px-6 py-4 flex items-center gap-3">
               <Loader2 className="w-6 h-6 animate-spin text-gray-600" />
-              <span className="text-gray-600 text-lg">Thinking...</span>
+              <span className="text-gray-600 text-lg">
+                {isStreaming ? 'Karen is typing...' : 'Thinking...'}
+              </span>
             </div>
           </div>
         )}
@@ -335,7 +370,7 @@ export default function OnboardingChat({
           <div className="flex gap-3">
             <button
               onClick={autoFillResponse}
-              disabled={isLoading || isAutoFilling || !sessionId}
+              disabled={isLoading || isAutoFilling || isStreaming || !sessionId}
               className="px-6 py-4 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               title="Auto-fill with AI-generated answer"
             >
@@ -351,13 +386,13 @@ export default function OnboardingChat({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type your answer..."
-              disabled={isLoading || !sessionId}
+              placeholder={isStreaming ? "Karen is typing..." : "Type your answer..."}
+              disabled={isLoading || isStreaming || !sessionId}
               className="flex-1 px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
             <button
               onClick={sendMessage}
-              disabled={!input.trim() || isLoading || !sessionId}
+              disabled={!input.trim() || isLoading || isStreaming || !sessionId}
               className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-lg font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {isLoading ? (
