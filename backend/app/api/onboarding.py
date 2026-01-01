@@ -402,13 +402,20 @@ async def start_onboarding(request: OnboardingStartRequest):
         
         logger.info(f"Started onboarding session: {session_id} for client: {client_id}")
         
+        # Format history to include Karen's intro + first question
+        history = [
+            {"role": "assistant", "content": karen_intro.content},
+            {"role": "assistant", "content": first_question}
+        ]
+        
         return OnboardingStartResponse(
             session_id=session_id,
             client_id=client_id,
             message=first_question,
             current_step=0,
             current_stage="Quick Start",
-            total_questions=48
+            total_questions=48,
+            history=history
         )
         
     except Exception as e:

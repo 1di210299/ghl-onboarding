@@ -217,9 +217,8 @@ class OnboardingWorkflow:
                     else:
                         question += f"\n\n✨ Choose one: {options_str}"
                 
-                # Add skip reminder for non-required questions
-                if not current_question.get('required', True):
-                    question += "\n\n💡 (Feel free to skip this if you'd prefer - just type 'skip'!)"
+                # Karen is flexible - ALL questions can be skipped if user prefers
+                question += "\n\n💡 (Not comfortable answering? Just say 'skip' and we'll move on!)"
                 
                 # Add note if present (but make it friendly)
                 if current_question.get('notes'):
@@ -272,15 +271,15 @@ class OnboardingWorkflow:
         validator_type = current_question.get('validator', 'text')
         question_type = current_question['type']
         
-        # Check if user wants to skip (for non-required questions)
-        skip_keywords = ['skip', 'pass', 'next', "i don't want to answer", "prefer not to say", "n/a", "not applicable", "no answer"]
-        if not current_question.get('required', True) and any(keyword in user_response.lower() for keyword in skip_keywords):
-            # Allow skip for optional questions
+        # Check if user wants to skip - KAREN ALLOWS SKIPPING ANY QUESTION IF USER DOESN'T WANT TO ANSWER
+        skip_keywords = ['skip', 'pass', 'next', "don't want", "dont want", "prefer not", "n/a", "not applicable", "no answer", "rather not"]
+        if any(keyword in user_response.lower() for keyword in skip_keywords):
+            # Allow skip for ANY question - Karen is understanding and flexible
             state[field_name] = "(Skipped)"
             state["current_step"] = step + 1
             state["needs_clarification"] = False
             state["last_validation_error"] = None
-            logger.info(f"Step {step}: User chose to skip optional question {field_name}")
+            logger.info(f"Step {step}: User chose to skip question {field_name}")
             return state
         
         # Check if response is meaningful (not just whitespace or very short)

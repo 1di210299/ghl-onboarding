@@ -84,24 +84,33 @@ export default function OnboardingPage() {
 
   if (showForm) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
-          <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome to Client Onboarding
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full border border-purple-100">
+          {/* Karen's Welcome Header */}
+          <div className="text-center mb-8">
+            <div className="inline-block mb-4">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                <span className="text-4xl">✨</span>
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
+              Hi! I'm Karen 👋
             </h1>
-            <p className="text-gray-600">
-              Let's get started with your healthcare practice setup
+            <p className="text-gray-700 text-lg font-medium mb-2">
+              Your AI Assistant from Staffless Practice
+            </p>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              I'm so excited to help you set up your practice! Let's get to know each other - this will be fun! 🎉
             </p>
           </div>
 
-          <form onSubmit={handleStart} className="space-y-4">
+          <form onSubmit={handleStart} className="space-y-5">
             <div>
               <label
                 htmlFor="practiceName"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-semibold text-gray-700 mb-2"
               >
-                Practice Name *
+                What's your practice name? 🏥
               </label>
               <input
                 id="practiceName"
@@ -111,7 +120,7 @@ export default function OnboardingPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, practiceName: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                 placeholder="e.g., Healthy Life Medical"
               />
             </div>
@@ -119,9 +128,9 @@ export default function OnboardingPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-semibold text-gray-700 mb-2"
               >
-                Email Address *
+                What's your email address? 📧
               </label>
               <input
                 id="email"
@@ -131,22 +140,28 @@ export default function OnboardingPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                 placeholder="contact@practice.com"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-pink-700 transform hover:scale-[1.02] transition-all shadow-lg hover:shadow-xl"
             >
-              Start Onboarding
+              Let's Get Started! 🚀
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
-            This will take approximately 15-20 minutes
-          </p>
+          <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+            <p className="text-center text-sm text-gray-700">
+              <span className="font-semibold">⏱️ Takes about 15-20 minutes</span>
+              <br />
+              <span className="text-xs text-gray-600 mt-1 block">
+                Don't worry - you can skip any question you're not comfortable with! 💜
+              </span>
+            </p>
+          </div>
         </div>
       </div>
     );

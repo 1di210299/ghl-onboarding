@@ -293,7 +293,10 @@ export default function OnboardingChat({
               className={`max-w-[80%] rounded-lg px-4 py-3 ${
                 message.role === 'user'
                   ? 'bg-blue-600 text-white'
-                  : message.content.includes('phase-complete') || message.content.includes('welcome-back')
+                  : message.content.includes('phase-complete') || 
+                    message.content.includes('welcome-back') ||
+                    message.content.includes('karen-intro') ||
+                    message.content.includes('karen-complete')
                   ? 'p-0 bg-transparent'
                   : 'bg-gray-100 text-gray-900'
               }`}
