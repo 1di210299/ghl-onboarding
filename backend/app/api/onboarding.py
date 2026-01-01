@@ -146,12 +146,22 @@ Let's pick up where you left off! Ready to continue? 🚀"""
             else:
                 next_question = "What is your full name?"
             
+            # Format history for frontend
+            history = [
+                {"role": "assistant" if msg.get('role') == 'assistant' else "user", 
+                 "content": msg.get('content', '')}
+                for msg in messages
+            ]
+            history.append({"role": "assistant", "content": welcome_back})
+            history.append({"role": "assistant", "content": next_question})
+            
             return OnboardingStartResponse(
                 session_id=session_id,
                 client_id=client_id,
                 message=next_question,
                 current_step=current_step,
-                total_questions=48
+                total_questions=48,
+                history=history
             )
         
         # No incomplete session - Check for recent duplicate (within last 30 seconds) to prevent double-submission

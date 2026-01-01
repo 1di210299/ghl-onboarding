@@ -31,6 +31,7 @@ class OnboardingStartResponse(BaseModel):
     current_step: int = Field(default=0, description="Current step in onboarding")
     current_stage: str = Field(default="Quick Start", description="Current stage name")
     total_questions: int = Field(default=48, description="Total number of questions")
+    history: list = Field(default=[], description="Previous conversation history for resume")
     
     class Config:
         json_schema_extra = {

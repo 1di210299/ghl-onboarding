@@ -76,14 +76,25 @@ export default function OnboardingChat({
         setCurrentStage(data.current_stage);
         setTotalQuestions(data.total_questions);
         
-        // Add first question as assistant message
-        setMessages([
-          {
-            role: 'assistant',
-            content: data.message,
+        // Check if there's history (resuming session)
+        if (data.history && data.history.length > 0) {
+          // Load full conversation history
+          const historyMessages = data.history.map((msg: any) => ({
+            role: msg.role as 'user' | 'assistant',
+            content: msg.content,
             timestamp: new Date(),
-          },
-        ]);
+          }));
+          setMessages(historyMessages);
+        } else {
+          // New session - Add first question as assistant message
+          setMessages([
+            {
+              role: 'assistant',
+              content: data.message,
+              timestamp: new Date(),
+            },
+          ]);
+        }
       } catch (err) {
         console.error('Error starting onboarding:', err);
         setError(err instanceof Error ? err.message : 'Failed to start onboarding');

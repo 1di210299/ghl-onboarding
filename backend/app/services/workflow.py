@@ -323,7 +323,11 @@ class OnboardingWorkflow:
             current_step = state["current_step"]
             
             # Check if a stage just completed
+            boundaries = get_stage_boundaries()
+            logger.info(f"save_data_node: current_step={current_step}, boundaries={boundaries}")
+            
             is_complete, stage_info = is_stage_complete(current_step)
+            logger.info(f"save_data_node: is_complete={is_complete}, stage_info={stage_info}")
             
             if is_complete:
                 # Add a progress message to celebrate completing the stage
