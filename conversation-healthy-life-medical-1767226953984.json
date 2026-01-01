@@ -1,657 +1,678 @@
 {
   "client": "Healthy Life Medical",
-  "exportDate": "2025-12-31T23:41:12.045Z",
-  "totalMessages": 93,
+  "exportDate": "2026-01-01T00:22:33.980Z",
+  "totalMessages": 96,
   "messages": [
     {
       "messageNumber": 1,
-      "role": "user",
-      "sender": "Client",
-      "content": "Dr. Emily Carter",
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "What is your full name?",
       "timestamp": null
     },
     {
       "messageNumber": 2,
-      "role": "assistant",
-      "sender": "Assistant",
-      "content": "What is your birthday? (Month & day only — we like celebrating you.)\n(No year needed)",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 3,
-      "role": "user",
-      "sender": "Client",
-      "content": "April 15",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 4,
-      "role": "assistant",
-      "sender": "Assistant",
-      "content": "What is your practice name (legal)?",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 5,
-      "role": "user",
-      "sender": "Client",
-      "content": "Healthy Life Medical, LLC",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 6,
-      "role": "assistant",
-      "sender": "Assistant",
-      "content": "What is your practice EIN?\n(Secure field)",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 7,
-      "role": "user",
-      "sender": "Client",
-      "content": "46-1234567",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 8,
-      "role": "assistant",
-      "sender": "Assistant",
-      "content": "What is your office mailing address?",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 9,
-      "role": "user",
-      "sender": "Client",
-      "content": "123 Wellness Blvd, Suite 456, Springfield, IL 62701",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 10,
-      "role": "assistant",
-      "sender": "Assistant",
-      "content": "What is your home mailing address (if different)?\n(Optional)",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 11,
-      "role": "user",
-      "sender": "Client",
-      "content": "1457 Oakwood Drive, Apt 3B, Springfield, IL 62704",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 12,
-      "role": "assistant",
-      "sender": "Assistant",
-      "content": "What is your office phone number?",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 13,
-      "role": "user",
-      "sender": "Client",
-      "content": "(555) 123-4567",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 14,
-      "role": "assistant",
-      "sender": "Assistant",
-      "content": "What is your office texting line (if different)?",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 15,
-      "role": "user",
-      "sender": "Client",
-      "content": "(555) 876-4321",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 16,
-      "role": "assistant",
-      "sender": "Assistant",
-      "content": "What is the best email for Staffless Practice correspondence?",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 17,
-      "role": "user",
-      "sender": "Client",
-      "content": "contact@healthylifemedical.com",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 18,
-      "role": "assistant",
-      "sender": "Assistant",
-      "content": "Please list members of your team and their roles.",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 19,
-      "role": "user",
-      "sender": "Client",
-      "content": "Dr. Emily Chen - Family Medicine Physician; Dr. Raj Patel - Pediatrician; Nurse Julia Brown - Registered Nurse; Tom Rivers - Practice Manager; Sarah Lopez - Medical Receptionist.",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 20,
-      "role": "assistant",
-      "sender": "Assistant",
-      "content": "Who will be the ONE point person for the Staffless Practice process?\n(Critical)",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 21,
       "role": "user",
       "sender": "Client",
       "content": "Dr. Emily Thompson",
       "timestamp": null
     },
     {
+      "messageNumber": 3,
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "What is your birthday? (Month & day only — we like celebrating you.)\n(No year needed)",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 4,
+      "role": "user",
+      "sender": "Client",
+      "content": "April 15",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 5,
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "What is your practice name (legal)?",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 6,
+      "role": "user",
+      "sender": "Client",
+      "content": "Healthy Life Medical, LLC",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 7,
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "What is your practice EIN?\n(Secure field)",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 8,
+      "role": "user",
+      "sender": "Client",
+      "content": "47-2856231",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 9,
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "What is your office mailing address?",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 10,
+      "role": "user",
+      "sender": "Client",
+      "content": "123 Wellness Blvd, Suite 200, Springfield, IL 62701",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 11,
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "What is your home mailing address (if different)?\n(Optional)",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 12,
+      "role": "user",
+      "sender": "Client",
+      "content": "123 Elm Street, Apt 4B, Springfield, IL 62704",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 13,
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "What is your office phone number?",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 14,
+      "role": "user",
+      "sender": "Client",
+      "content": "(555) 123-4567",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 15,
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "What is your office texting line (if different)?",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 16,
+      "role": "user",
+      "sender": "Client",
+      "content": "(555) 987-6543",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 17,
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "What is the best email for Staffless Practice correspondence?",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 18,
+      "role": "user",
+      "sender": "Client",
+      "content": "contact@healthylifemedical.com",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 19,
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "Please list members of your team and their roles.",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 20,
+      "role": "user",
+      "sender": "Client",
+      "content": "Dr. Emily Carter - Family Medicine Physician; Dr. Raj Patel - Pediatrician; Lisa Nguyen - Nurse Practitioner; Sarah Gomez - Medical Assistant; John Reynolds - Office Manager; Karen Lee - Receptionist.",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 21,
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "Who will be the ONE point person for the Staffless Practice process?\n(Critical)",
+      "timestamp": null
+    },
+    {
       "messageNumber": 22,
+      "role": "user",
+      "sender": "Client",
+      "content": "Jessica Nguyen, Operations Manager.",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 23,
       "role": "assistant",
       "sender": "Assistant",
       "content": "How do you prefer to communicate with our team?\n\nOptions: Slack, Email, Practice Suite",
       "timestamp": null
     },
     {
-      "messageNumber": 23,
+      "messageNumber": 24,
       "role": "user",
       "sender": "Client",
       "content": "Email",
       "timestamp": null
     },
     {
-      "messageNumber": 24,
+      "messageNumber": 25,
       "role": "assistant",
       "sender": "Assistant",
       "content": "On a scale of 1–5, how tech-savvy do you feel?",
       "timestamp": null
     },
     {
-      "messageNumber": 25,
+      "messageNumber": 26,
       "role": "user",
       "sender": "Client",
       "content": "4",
       "timestamp": null
     },
     {
-      "messageNumber": 26,
+      "messageNumber": 27,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Are you currently working with a marketing company?",
       "timestamp": null
     },
     {
-      "messageNumber": 27,
+      "messageNumber": 28,
       "role": "user",
       "sender": "Client",
       "content": "Yes.",
       "timestamp": null
     },
     {
-      "messageNumber": 28,
+      "messageNumber": 29,
       "role": "assistant",
       "sender": "Assistant",
-      "content": "Please answer with 'Yes' or 'No'",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 29,
-      "role": "user",
-      "sender": "Client",
-      "content": "Yes",
+      "content": "If yes, who are you working with?",
       "timestamp": null
     },
     {
       "messageNumber": 30,
+      "role": "user",
+      "sender": "Client",
+      "content": "I'm working with Dr. Emily Thompson, our lead physician, and James Carter from the IT support team.",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 31,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Do you currently use any software for texting or email blasts?\n(List all)",
       "timestamp": null
     },
     {
-      "messageNumber": 31,
+      "messageNumber": 32,
       "role": "user",
       "sender": "Client",
-      "content": "Yes, we currently use Klara for patient messaging and Mailchimp for email campaigns.",
+      "content": "Yes, we use Klara for patient texting and Mailchimp for email blasts.",
       "timestamp": null
     },
     {
-      "messageNumber": 32,
+      "messageNumber": 33,
       "role": "assistant",
       "sender": "Assistant",
       "content": "What type of practice are you?\n\nOptions: Chiro, PT, Therapy, Acupuncture, Naturopathic, Other",
       "timestamp": null
     },
     {
-      "messageNumber": 33,
+      "messageNumber": 34,
       "role": "user",
       "sender": "Client",
       "content": "Naturopathic",
       "timestamp": null
     },
     {
-      "messageNumber": 34,
+      "messageNumber": 35,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Who do you most love working with?",
       "timestamp": null
     },
     {
-      "messageNumber": 35,
+      "messageNumber": 36,
       "role": "user",
       "sender": "Client",
-      "content": "Patients who are proactive about their health and eager to collaborate on personalized wellness plans.",
+      "content": "I most love working with patients who are proactive about their health and eager to engage in their wellness journey.",
       "timestamp": null
     },
     {
-      "messageNumber": 36,
+      "messageNumber": 37,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Who do you NOT want more of?\n(Safe space)",
       "timestamp": null
     },
     {
-      "messageNumber": 37,
+      "messageNumber": 38,
       "role": "user",
       "sender": "Client",
-      "content": "Patients who repeatedly miss appointments without notice.",
+      "content": "We aim to avoid individuals who are not committed to their health journey or who consistently miss appointments, as this can disrupt patient care and clinic operations.",
       "timestamp": null
     },
     {
-      "messageNumber": 38,
+      "messageNumber": 39,
       "role": "assistant",
       "sender": "Assistant",
       "content": "What problem do people usually come to you for first?",
       "timestamp": null
     },
     {
-      "messageNumber": 39,
+      "messageNumber": 40,
       "role": "user",
       "sender": "Client",
-      "content": "Patients commonly visit us first for comprehensive annual physical exams to assess overall health and prevent future medical issues.",
+      "content": "Most patients initially come to us for managing chronic conditions like hypertension or diabetes.",
       "timestamp": null
     },
     {
-      "messageNumber": 40,
+      "messageNumber": 41,
       "role": "assistant",
       "sender": "Assistant",
       "content": "What transformation do they stay for?",
       "timestamp": null
     },
     {
-      "messageNumber": 41,
+      "messageNumber": 42,
       "role": "user",
       "sender": "Client",
-      "content": "Patients stay to achieve a healthier lifestyle and improved well-being through personalized medical care, preventative strategies, and comprehensive health management.",
+      "content": "Improved health and well-being, including better management of chronic conditions and enhanced quality of life.",
       "timestamp": null
     },
     {
-      "messageNumber": 42,
+      "messageNumber": 43,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Choose 3–5 words that describe your practice’s personality.",
       "timestamp": null
     },
     {
-      "messageNumber": 43,
+      "messageNumber": 44,
       "role": "user",
       "sender": "Client",
-      "content": "Compassionate, Innovative, Patient-Centered.",
+      "content": "Compassionate, innovative, patient-centered, holistic, trustworthy.",
       "timestamp": null
     },
     {
-      "messageNumber": 44,
+      "messageNumber": 45,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Choose 3–5 words you never want your brand to sound like.",
       "timestamp": null
     },
     {
-      "messageNumber": 45,
+      "messageNumber": 46,
       "role": "user",
       "sender": "Client",
-      "content": "Impersonal, rushed, untrustworthy.",
+      "content": "Cold, impersonal, unapproachable, outdated, indifferent.",
       "timestamp": null
     },
     {
-      "messageNumber": 46,
+      "messageNumber": 47,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Do you have a brand kit you’re happy with?\n\nOptions: Yes, It’s okay, No",
       "timestamp": null
     },
     {
-      "messageNumber": 47,
+      "messageNumber": 48,
       "role": "user",
       "sender": "Client",
-      "content": "Yes",
+      "content": "It’s okay.",
       "timestamp": null
     },
     {
-      "messageNumber": 48,
+      "messageNumber": 49,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Do you currently have a logo?",
       "timestamp": null
     },
     {
-      "messageNumber": 49,
+      "messageNumber": 50,
       "role": "user",
       "sender": "Client",
       "content": "Yes.",
       "timestamp": null
     },
     {
-      "messageNumber": 50,
-      "role": "assistant",
-      "sender": "Assistant",
-      "content": "Please answer with 'Yes' or 'No'",
-      "timestamp": null
-    },
-    {
       "messageNumber": 51,
-      "role": "user",
-      "sender": "Client",
-      "content": "Yes",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 52,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Do you have a font set?",
       "timestamp": null
     },
     {
-      "messageNumber": 53,
-      "role": "user",
-      "sender": "Client",
-      "content": "Yes.",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 54,
-      "role": "assistant",
-      "sender": "Assistant",
-      "content": "Please answer with 'Yes' or 'No'",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 55,
+      "messageNumber": 52,
       "role": "user",
       "sender": "Client",
       "content": "Yes",
       "timestamp": null
     },
     {
-      "messageNumber": 56,
+      "messageNumber": 53,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Do you have a color palette?",
       "timestamp": null
     },
     {
-      "messageNumber": 57,
+      "messageNumber": 54,
       "role": "user",
       "sender": "Client",
       "content": "Yes.",
       "timestamp": null
     },
     {
-      "messageNumber": 58,
-      "role": "assistant",
-      "sender": "Assistant",
-      "content": "Please answer with 'Yes' or 'No'",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 59,
-      "role": "user",
-      "sender": "Client",
-      "content": "Yes",
-      "timestamp": null
-    },
-    {
-      "messageNumber": 60,
+      "messageNumber": 55,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Where are your brand assets stored?\n\nOptions: Canva, Google Drive, Dropbox, Not sure",
       "timestamp": null
     },
     {
-      "messageNumber": 61,
+      "messageNumber": 56,
       "role": "user",
       "sender": "Client",
       "content": "Google Drive",
       "timestamp": null
     },
     {
-      "messageNumber": 62,
+      "messageNumber": 57,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Do you currently have a website?\n\nOptions: Yes, No, Sort of",
       "timestamp": null
     },
     {
-      "messageNumber": 63,
+      "messageNumber": 58,
       "role": "user",
       "sender": "Client",
       "content": "Yes",
       "timestamp": null
     },
     {
-      "messageNumber": 64,
+      "messageNumber": 59,
       "role": "assistant",
       "sender": "Assistant",
       "content": "What would you like to do with your website?\n\nOptions: Leave as-is, Light updates, Refresh, Full rebuild, Need guidance",
       "timestamp": null
     },
     {
-      "messageNumber": 65,
+      "messageNumber": 60,
       "role": "user",
       "sender": "Client",
-      "content": "Need guidance",
+      "content": "Refresh",
       "timestamp": null
     },
     {
-      "messageNumber": 66,
+      "messageNumber": 61,
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "Would you like us to build a new website for you?",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 62,
+      "role": "user",
+      "sender": "Client",
+      "content": "Yes.",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 63,
       "role": "assistant",
       "sender": "Assistant",
       "content": "What is the main job your website should do?\n\nOptions: Booking, Education, Trust, Referrals, All",
       "timestamp": null
     },
     {
-      "messageNumber": 67,
+      "messageNumber": 64,
       "role": "user",
       "sender": "Client",
       "content": "All",
       "timestamp": null
     },
     {
-      "messageNumber": 68,
+      "messageNumber": 65,
       "role": "assistant",
       "sender": "Assistant",
       "content": "What currently bothers you about your website?",
       "timestamp": null
     },
     {
-      "messageNumber": 69,
+      "messageNumber": 66,
       "role": "user",
       "sender": "Client",
-      "content": "The website is not mobile-friendly, which makes it difficult for patients to navigate appointment scheduling on their phones.",
+      "content": "Our website needs improved navigation for easier appointment booking and more comprehensive patient resources.",
       "timestamp": null
     },
     {
-      "messageNumber": 70,
+      "messageNumber": 67,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Which platforms do you want to grow with?\n\nOptions: Instagram, Facebook, LinkedIn, Blog, None",
       "timestamp": null
     },
     {
-      "messageNumber": 71,
+      "messageNumber": 68,
       "role": "user",
       "sender": "Client",
       "content": "LinkedIn",
       "timestamp": null
     },
     {
+      "messageNumber": 69,
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "How should Instagram function?\n\nOptions: Trust, Education, Visibility, Repurpose, Not priority",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 70,
+      "role": "user",
+      "sender": "Client",
+      "content": "Education",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 71,
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "What role should Facebook play?\n\nOptions: Community, Announcements, Ads only, Light, None",
+      "timestamp": null
+    },
+    {
       "messageNumber": 72,
+      "role": "user",
+      "sender": "Client",
+      "content": "Community",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 73,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Who would LinkedIn be for?",
       "timestamp": null
     },
     {
-      "messageNumber": 73,
+      "messageNumber": 74,
       "role": "user",
       "sender": "Client",
-      "content": "Healthcare professionals seeking networking opportunities, industry insights, and career advancement.",
+      "content": "LinkedIn would be for healthcare professionals seeking to network, share expertise, and explore career opportunities.",
       "timestamp": null
     },
     {
-      "messageNumber": 74,
+      "messageNumber": 75,
+      "role": "assistant",
+      "sender": "Assistant",
+      "content": "What would a blog support?\n\nOptions: SEO, Education, Authority, Not sure",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 76,
+      "role": "user",
+      "sender": "Client",
+      "content": "SEO",
+      "timestamp": null
+    },
+    {
+      "messageNumber": 77,
       "role": "assistant",
       "sender": "Assistant",
       "content": "How would you like your Practice Suite managed?\n\nOptions: AI-run, Human support (upgrade), Mix, Not sure\n(Critical)",
       "timestamp": null
     },
     {
-      "messageNumber": 75,
+      "messageNumber": 78,
       "role": "user",
       "sender": "Client",
       "content": "Mix",
       "timestamp": null
     },
     {
-      "messageNumber": 76,
+      "messageNumber": 79,
       "role": "assistant",
       "sender": "Assistant",
       "content": "If a real person helped, what would you want handled?\n\nOptions: Inbox, Scheduling, Follow-ups, Admin, Projects",
       "timestamp": null
     },
     {
-      "messageNumber": 77,
+      "messageNumber": 80,
       "role": "user",
       "sender": "Client",
       "content": "Scheduling",
       "timestamp": null
     },
     {
-      "messageNumber": 78,
+      "messageNumber": 81,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Are you interested in SEO?\n\nOptions: Yes, Maybe later, No, Need guidance\n(Upgrade)",
       "timestamp": null
     },
     {
-      "messageNumber": 79,
+      "messageNumber": 82,
       "role": "user",
       "sender": "Client",
       "content": "Yes",
       "timestamp": null
     },
     {
-      "messageNumber": 80,
+      "messageNumber": 83,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Are you interested in Ads?\n\nOptions: Yes, Maybe later, No, Need guidance\n(Upgrade)",
       "timestamp": null
     },
     {
-      "messageNumber": 81,
+      "messageNumber": 84,
       "role": "user",
       "sender": "Client",
-      "content": "Maybe later",
+      "content": "Need guidance",
       "timestamp": null
     },
     {
-      "messageNumber": 82,
+      "messageNumber": 85,
       "role": "assistant",
       "sender": "Assistant",
       "content": "What would success from growth look like to you?",
       "timestamp": null
     },
     {
-      "messageNumber": 83,
+      "messageNumber": 86,
       "role": "user",
       "sender": "Client",
-      "content": "A thriving patient base, enhanced online presence, and streamlined operations that allow for more personalized care and improved patient satisfaction.",
+      "content": "Increased patient satisfaction, more efficient appointment scheduling, expanded services to meet diverse community needs, and a stronger online presence to attract new patients.",
       "timestamp": null
     },
     {
-      "messageNumber": 84,
+      "messageNumber": 87,
       "role": "assistant",
       "sender": "Assistant",
       "content": "If we could focus on ONE thing first, what should it be?\n\nOptions: Systems, Support, Visibility, Content, Clarity",
       "timestamp": null
     },
     {
-      "messageNumber": 85,
+      "messageNumber": 88,
       "role": "user",
       "sender": "Client",
-      "content": "Systems",
+      "content": "Clarity",
       "timestamp": null
     },
     {
-      "messageNumber": 86,
+      "messageNumber": 89,
       "role": "assistant",
       "sender": "Assistant",
       "content": "How fast do you want things to move?\n\nOptions: Slow, Steady, Fast",
       "timestamp": null
     },
     {
-      "messageNumber": 87,
+      "messageNumber": 90,
       "role": "user",
       "sender": "Client",
       "content": "Steady",
       "timestamp": null
     },
     {
-      "messageNumber": 88,
+      "messageNumber": 91,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Is there anything that’s burned you with past vendors we should avoid?",
       "timestamp": null
     },
     {
-      "messageNumber": 89,
+      "messageNumber": 92,
       "role": "user",
       "sender": "Client",
-      "content": "Delayed communication has been an issue. Timely updates and responses are crucial for smooth operations, especially when dealing with patient records and urgent medical supplies.",
+      "content": "Yes, unclear billing practices have been a significant issue. Transparency in invoicing and timely communication about any changes in costs are crucial for us.",
       "timestamp": null
     },
     {
-      "messageNumber": 90,
+      "messageNumber": 93,
       "role": "assistant",
       "sender": "Assistant",
       "content": "What would feeling truly supported look like to you?",
       "timestamp": null
     },
     {
-      "messageNumber": 91,
+      "messageNumber": 94,
       "role": "user",
       "sender": "Client",
-      "content": "Having a responsive team that listens to patient concerns, offers personalized care plans, and provides clear communication regarding treatments and follow-ups.",
+      "content": "Having a dedicated care coordinator who ensures my appointments, follow-ups, and any health concerns are seamlessly managed.",
       "timestamp": null
     },
     {
-      "messageNumber": 92,
+      "messageNumber": 95,
       "role": "assistant",
       "sender": "Assistant",
       "content": "Is there anything else you want us to know?",
       "timestamp": null
     },
     {
-      "messageNumber": 93,
+      "messageNumber": 96,
       "role": "user",
       "sender": "Client",
-      "content": "We prioritize patient-centered care and value open communication. If you have specific needs or preferences regarding your healthcare, please let us know so we can accommodate them to ensure the best possible experience at Healthy Life Medical.",
+      "content": "We are committed to offering personalized care plans and would love any feedback you have to ensure we meet your specific health needs.",
       "timestamp": null
     }
   ]

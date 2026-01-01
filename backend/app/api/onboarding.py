@@ -33,20 +33,132 @@ _sessions = {}
 @router.post("/start", response_model=OnboardingStartResponse)
 async def start_onboarding(request: OnboardingStartRequest):
     """
-    Start a new onboarding session.
+    Start a new onboarding session OR resume an incomplete one.
     
     Creates a client record and initializes the conversation workflow.
-    Prevents duplicate sessions for the same practice within 5 minutes.
+    If an incomplete session exists, it will resume from where they left off.
     """
     try:
         logger.info(f"Starting onboarding for tenant: {request.tenant_id}, practice: {request.practice_name}")
         
-        # Check for recent duplicate (within last 30 seconds) to prevent double-submission
         service_client = supabase.service
+        
+        # Check for ANY incomplete onboarding for this practice (not just recent)
+        incomplete = service_client.table("clients").select("*").eq(
+            "tenant_id", request.tenant_id
+        ).eq(
+            "practice_name", request.practice_name or "New Practice"
+        ).eq(
+            "onboarding_completed", False
+        ).order("created_at", desc=True).limit(1).execute()
+        
+        if incomplete.data:
+            # Found incomplete onboarding - let them resume
+            existing_client = incomplete.data[0]
+            client_id = existing_client["id"]
+            onboarding_data = existing_client.get("onboarding_data", {})
+            current_step = onboarding_data.get("current_step", 0)
+            messages = onboarding_data.get("messages", [])
+            
+            logger.info(f"Found incomplete onboarding for client {client_id}, resuming from step {current_step}")
+            
+            # Generate new session for resuming
+            session_id = f"sess_{uuid.uuid4().hex[:16]}"
+            
+            # Restore state from database
+            workflow = get_workflow()
+            from langchain_core.messages import HumanMessage, AIMessage
+            
+            # Reconstruct messages
+            restored_messages = []
+            for msg in messages:
+                if msg.get('role') == 'assistant':
+                    restored_messages.append(AIMessage(content=msg.get('content', '')))
+                else:
+                    restored_messages.append(HumanMessage(content=msg.get('content', '')))
+            
+            initial_state = {
+                "session_id": session_id,
+                "client_id": client_id,
+                "tenant_id": request.tenant_id,
+                "practice_name": request.practice_name or "New Practice",
+                "messages": restored_messages,
+                "current_step": current_step,
+                "current_stage": onboarding_data.get("current_stage"),
+                "is_completed": False,
+                "needs_clarification": False,
+                "last_validation_error": None,
+                # Initialize all 48 question fields
+                **{f"q{i}_admin": None for i in range(1, 10)},
+                **{f"q{i}_team": None for i in [10, 11]},
+                "q12_communication": None,
+                "q13_readiness": None,
+                "q14_marketing": None,
+                "q15_marketing": None,
+                "q16_stack": None,
+                **{f"q{i}_practice_type": None for i in [17]},
+                "q18_ideal_client": None,
+                "q19_boundaries": None,
+                **{f"q{i}_messaging": None for i in [20, 21]},
+                **{f"q{i}_brand_voice": None for i in [22, 23]},
+                **{f"q{i}_brand": None for i in range(24, 29)},
+                **{f"q{i}_website": None for i in range(29, 34)},
+                "q34_social": None,
+                **{f"q{i}_social_ig": None for i in [35]},
+                **{f"q{i}_social_fb": None for i in [36]},
+                **{f"q{i}_social_li": None for i in [37]},
+                "q38_blog": None,
+                **{f"q{i}_suite_model": None for i in [39]},
+                "q40_saya": None,
+                **{f"q{i}_seo": None for i in [41]},
+                **{f"q{i}_ads": None for i in [42]},
+                **{f"q{i}_growth": None for i in [43, 44, 45]},
+                "q46_risk": None,
+                "q47_success": None,
+                "q48_notes": None
+            }
+            
+            _sessions[session_id] = initial_state
+            
+            # Add welcome back message
+            welcome_back = f"""👋 Welcome back! I see you started your onboarding but didn't finish.
+
+📊 You've completed {current_step} out of 48 questions.
+
+Let's pick up where you left off! Ready to continue? 🚀"""
+            
+            welcome_msg = AIMessage(content=welcome_back)
+            initial_state["messages"].append(welcome_msg)
+            
+            # Get next question
+            from app.services.workflow import get_question_by_index
+            next_q = get_question_by_index(current_step)
+            if next_q:
+                next_question = next_q['text']
+                if next_q.get('options'):
+                    if isinstance(next_q['options'], list):
+                        options_str = ', '.join(next_q['options'])
+                    else:
+                        options_str = next_q['options']
+                    next_question += f"\n\nOptions: {options_str}"
+                if next_q.get('notes'):
+                    next_question += f"\n({next_q['notes']})"
+            else:
+                next_question = "What is your full name?"
+            
+            return OnboardingStartResponse(
+                session_id=session_id,
+                client_id=client_id,
+                message=next_question,
+                current_step=current_step,
+                total_questions=48
+            )
+        
+        # No incomplete session - Check for recent duplicate (within last 30 seconds) to prevent double-submission
         from datetime import timedelta
         thirty_seconds_ago = (datetime.utcnow() - timedelta(seconds=30)).isoformat()
         
-        existing = service_client.table("clients").select("id, created_at").eq(
+        recent_duplicate = service_client.table("clients").select("id, created_at").eq(
             "tenant_id", request.tenant_id
         ).eq(
             "practice_name", request.practice_name or "New Practice"
@@ -56,9 +168,9 @@ async def start_onboarding(request: OnboardingStartRequest):
             "created_at", thirty_seconds_ago
         ).order("created_at", desc=True).limit(1).execute()
         
-        if existing.data:
-            logger.info(f"Found recent duplicate client, reusing: {existing.data[0]['id']}")
-            client_id = existing.data[0]["id"]
+        if recent_duplicate.data:
+            logger.info(f"Found recent duplicate client, reusing: {recent_duplicate.data[0]['id']}")
+            client_id = recent_duplicate.data[0]["id"]
             
             # Generate new session for existing client
             session_id = f"sess_{uuid.uuid4().hex[:16]}"

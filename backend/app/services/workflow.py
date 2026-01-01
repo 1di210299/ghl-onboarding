@@ -33,6 +33,50 @@ TOTAL_QUESTIONS = _QUESTIONS_CONFIG['total_questions']
 STAGES = {stage['id']: stage for stage in _QUESTIONS_CONFIG['stages']}
 
 
+def get_stage_boundaries() -> List[int]:
+    """
+    Get question indices where each stage ends.
+    Returns list of question numbers where stages complete.
+    """
+    boundaries = []
+    count = 0
+    for stage in _QUESTIONS_CONFIG['stages']:
+        count += len(stage['questions'])
+        boundaries.append(count - 1)  # Last question of each stage (0-indexed)
+    return boundaries
+
+
+def is_stage_complete(question_index: int) -> tuple[bool, Optional[Dict[str, Any]]]:
+    """
+    Check if a stage just completed.
+    
+    Returns:
+        (is_complete, stage_info) - stage_info includes name, description, next stage
+    """
+    boundaries = get_stage_boundaries()
+    
+    if question_index in boundaries:
+        # Find which stage just completed
+        stage_num = boundaries.index(question_index)
+        completed_stage = _QUESTIONS_CONFIG['stages'][stage_num]
+        
+        # Get next stage if exists
+        next_stage = None
+        if stage_num + 1 < len(_QUESTIONS_CONFIG['stages']):
+            next_stage = _QUESTIONS_CONFIG['stages'][stage_num + 1]
+        
+        return True, {
+            'completed_stage': completed_stage,
+            'next_stage': next_stage,
+            'stage_number': stage_num + 1,
+            'total_stages': len(_QUESTIONS_CONFIG['stages']),
+            'questions_completed': question_index + 1,
+            'total_questions': TOTAL_QUESTIONS
+        }
+    
+    return False, None
+
+
 def get_question_by_index(index: int) -> Optional[Dict[str, Any]]:
     """Get question by its index (0-based)."""
     for stage in _QUESTIONS_CONFIG['stages']:
@@ -276,13 +320,40 @@ class OnboardingWorkflow:
             Updated state after saving
         """
         try:
+            current_step = state["current_step"]
+            
+            # Check if a stage just completed
+            is_complete, stage_info = is_stage_complete(current_step)
+            
+            if is_complete:
+                # Add a progress message to celebrate completing the stage
+                completed = stage_info['completed_stage']
+                next_stage = stage_info['next_stage']
+                stage_num = stage_info['stage_number']
+                total_stages = stage_info['total_stages']
+                
+                progress_message = f"""🎉 Great work! You've completed **{completed['name']}** (Phase {stage_num}/{total_stages})!
+
+📊 Progress: {stage_info['questions_completed']}/{stage_info['total_questions']} questions answered"""
+                
+                if next_stage:
+                    progress_message += f"\n\n✨ Next up: **{next_stage['name']}**\n_{next_stage['description']}_\n\nLet's continue! 💪"
+                else:
+                    progress_message += "\n\n🏆 Amazing! You're almost done! Just a few more questions..."
+                
+                # Add progress message to conversation
+                progress_msg = AIMessage(content=progress_message)
+                state["messages"].append(progress_msg)
+                
+                logger.info(f"Stage {stage_num} completed: {completed['name']}")
+            
             # Move to next step
             state["current_step"] += 1
             
             # Save to database
             self._save_to_database(state)
             
-            logger.info(f"Saved data for step {state['current_step'] - 1}")
+            logger.info(f"Saved data for step {current_step}")
         except Exception as e:
             logger.error(f"Error saving data: {e}")
         
