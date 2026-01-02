@@ -92,7 +92,7 @@ export default function ClientDetailPage() {
                     <p className="font-mono text-sm">{client.ghl_contact_id}</p>
                   </div>
                   <Link
-                    href={`https://app.thepracticesuite.com/v2/location/${process.env.NEXT_PUBLIC_GHL_LOCATION_ID}/contacts/detail/${client.ghl_contact_id}`}
+                    href={`https://app.thepracticesuite.com/v2/location/${process.env.NEXT_PUBLIC_GHL_LOCATION_ID}/contacts/smart_list/All`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

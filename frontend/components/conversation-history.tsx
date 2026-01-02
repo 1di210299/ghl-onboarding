@@ -24,12 +24,25 @@ export function ConversationHistory({ messages, clientName }: ConversationHistor
     )
   }
 
+  // Filter out Karen's introduction message from dashboard view
+  const filteredMessages = messages.filter(msg => 
+    !msg.content.includes('karen-intro')
+  )
+
+  if (filteredMessages.length === 0) {
+    return (
+      <div className="text-center text-gray-500 py-8">
+        No conversation history available
+      </div>
+    )
+  }
+
   const handleDownloadJSON = () => {
     const conversationData = {
       client: clientName || 'Unknown',
       exportDate: new Date().toISOString(),
-      totalMessages: messages.length,
-      messages: messages.map((msg, idx) => ({
+      totalMessages: filteredMessages.length,
+      messages: filteredMessages.map((msg, idx) => ({
         messageNumber: idx + 1,
         role: msg.role,
         sender: msg.role === 'user' ? 'Client' : 'Assistant',
@@ -55,7 +68,7 @@ export function ConversationHistory({ messages, clientName }: ConversationHistor
     <div>
       <div className="flex justify-between items-center mb-4">
         <p className="text-sm text-gray-600">
-          {messages.length} messages
+          {filteredMessages.length} messages
         </p>
         <Button
           onClick={handleDownloadJSON}
@@ -69,7 +82,7 @@ export function ConversationHistory({ messages, clientName }: ConversationHistor
       </div>
       
       <div className="max-h-[600px] overflow-y-auto pr-2 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-        {messages.map((message, index) => (
+        {filteredMessages.map((message, index) => (
           <div
             key={index}
             className={`flex ${
@@ -93,7 +106,14 @@ export function ConversationHistory({ messages, clientName }: ConversationHistor
                   </span>
                 )}
               </div>
-              <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+              {message.content.includes('<div') ? (
+                <div 
+                  className="text-sm whitespace-pre-wrap leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: message.content }}
+                />
+              ) : (
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+              )}
             </div>
           </div>
         ))}
