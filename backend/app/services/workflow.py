@@ -121,6 +121,66 @@ class OnboardingWorkflow:
         )
         self.graph = self._build_graph()
     
+    def _generate_contextual_question(
+        self, 
+        base_question: str, 
+        step: int, 
+        last_response: Optional[str],
+        current_question: Dict[str, Any]
+    ) -> str:
+        """
+        Use AI to generate a contextual, conversational version of the question.
+        Adds natural transitions and reactions based on previous responses.
+        
+        Args:
+            base_question: The original question text
+            step: Current question number
+            last_response: User's last response (if any)
+            current_question: Full question config
+            
+        Returns:
+            Contextualized, conversational question
+        """
+        # For first question, use a simple intro
+        if step == 0:
+            return f"Great! Let's start with the basics. {base_question}"
+        
+        # If no previous response (shouldn't happen after step 0), return base
+        if not last_response:
+            return base_question
+        
+        # Use AI to create contextual transition
+        prompt = f"""You are Karen, a friendly AI assistant helping with practice onboarding.
+
+The user just answered: "{last_response}"
+
+Now you need to ask the next question: "{base_question}"
+
+Create a natural, conversational way to ask this question that:
+1. Briefly acknowledges/reacts to their previous answer (1 short sentence max)
+2. Smoothly transitions to the new question
+3. Keeps Karen's personality: warm, enthusiastic, professional but friendly
+4. Uses emojis sparingly (0-1 per response)
+5. Is concise - maximum 2-3 sentences total
+
+If they skipped the previous question, be understanding and move on positively.
+
+Return ONLY the conversational question, nothing else."""
+
+        try:
+            response = self.llm.invoke([SystemMessage(content=prompt)])
+            contextual_question = response.content.strip()
+            
+            # Fallback to base if AI returns something too long or weird
+            if len(contextual_question) > 300 or not contextual_question:
+                return base_question
+                
+            return contextual_question
+            
+        except Exception as e:
+            logger.warning(f"Failed to generate contextual question: {e}")
+            return base_question
+    
     def _build_graph(self) -> StateGraph:
         """
         Build the LangGraph state machine.
@@ -192,16 +252,24 @@ class OnboardingWorkflow:
             if not current_question:
                 question = "Oops! Something went wrong on my end. Let's try that again! 🔄"
             else:
-                # Make questions conversational with Karen's personality
+                # Get last user response for contextual transition
+                last_user_response = None
+                if len(state["messages"]) >= 2:
+                    # Get the second-to-last message (last user message)
+                    for msg in reversed(state["messages"]):
+                        if isinstance(msg, HumanMessage):
+                            last_user_response = msg.content
+                            break
+                
                 base_question = current_question['text']
                 
-                # Add conversational prefixes based on question type
-                if step == 0:
-                    question = f"Great! Let's start with the basics. {base_question}"
-                elif step < 9:
-                    question = base_question
-                else:
-                    question = base_question
+                # Use AI to create contextual, conversational question
+                question = self._generate_contextual_question(
+                    base_question=base_question,
+                    step=step,
+                    last_response=last_user_response,
+                    current_question=current_question
+                )
                 
                 # Add options if it's a choice question
                 if current_question.get('options') and current_question['type'] in ['Multiple Choice', 'Multi-Select']:
