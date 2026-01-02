@@ -432,7 +432,7 @@ Return ONLY the conversational question, nothing else."""
             state["last_validation_error"] = None
             
             # If error contains paraphrase (UNDERSTOOD response), add it to messages
-            if error and not error.startswith("ASK_"):
+            if error:
                 # This is a paraphrase/confirmation from AI
                 paraphrase_msg = AIMessage(content=error)
                 state["messages"].append(paraphrase_msg)
@@ -440,23 +440,10 @@ Return ONLY the conversational question, nothing else."""
             
             logger.info(f"Step {step}: Validation successful for {field_name}")
         else:
-            # Check if user is asking "why"
-            if error == "ASK_WHY":
-                state["needs_clarification"] = True
-                # Generate explanation for why we need this info
-                question_text = current_question['text']
-                reason = current_question.get('reason', 'This information helps us understand your practice better and provide personalized support.')
-                
-                why_response = f"""Great question! {reason}
-
-{question_text}"""
-                state["last_validation_error"] = why_response
-                logger.info(f"Step {step}: User asked 'why' - providing reason")
-            else:
-                # Need clarification - use the AI-generated friendly message
-                state["needs_clarification"] = True
-                state["last_validation_error"] = error
-                logger.warning(f"Step {step}: Validation failed - {error}")
+            # Need clarification - use the AI-generated message (includes EXPLAIN and REDIRECT)
+            state["needs_clarification"] = True
+            state["last_validation_error"] = error
+            logger.warning(f"Step {step}: Validation failed - {error}")
         
         return state
     
@@ -822,35 +809,38 @@ Return ONLY the conversational question, nothing else."""
             (is_valid, interpreted_data, paraphrase_or_error)
         """
         try:
-            # Check if user is asking "why" or "what's this for"
-            why_keywords = ['why', 'what for', 'why do you need', 'what is this for', 'para qué', 'por qué', 'para que', 'what is it for', 'why do i need']
-            if any(keyword in response.lower() for keyword in why_keywords):
-                return False, response, "ASK_WHY"  # Special signal
             
             # Check minimum length
             if len(response.strip()) < 2:
                 return False, response, "Could you tell me a bit more? Even a short answer helps!"
             
             # Use LLM to INTERPRET the response naturally
-            interpretation_prompt = f"""You are Karen, an AI helping with practice onboarding. You received a natural language response.
+            interpretation_prompt = f"""You are Karen, a warm and professional AI assistant helping with healthcare practice onboarding.
+
+Context: This is for official business records and system setup. While being conversational and friendly, you need complete, accurate information.
 
 Question Asked: {question}
 User's Response: {response}
 
 Your task:
-1. Interpret what the user is telling you
-2. If the response DOES answer the question (even informally), paraphrase what you understood in a friendly way
-3. If the response does NOT answer the question at all, acknowledge their comment and gently remind them to answer the actual question
+1. Determine if the response FULLY and APPROPRIATELY answers the question
+   - For formal data (names, addresses, EINs): Require complete, proper information
+   - Informal nicknames or incomplete answers should be redirected
+   - If asking "why": Explain the specific business reason for this information, then re-ask
+   - If off-topic: Acknowledge warmly but redirect firmly
 
-Format your response as ONE of these:
+2. Format your response as ONE of these:
 
-UNDERSTOOD: [Your friendly paraphrase of what they said, showing you got the answer]
-Example: "UNDERSTOOD: Got it! So your practice is called 'Healthy Smiles Dental' - that's a great name! 😊"
+UNDERSTOOD: [Friendly confirmation of their complete answer]
+Example: "UNDERSTOOD: Perfect! Your full legal practice name is 'Healthy Smiles Dental Associates, LLC' - I've got that recorded! 😊"
 
-REDIRECT: [Acknowledge their comment + remind them to answer the question]
-Example: "REDIRECT: I hear you! But I still need to know - {question}"
+EXPLAIN: [Personalized explanation of why this specific information is needed for their practice setup, then re-ask the question]
+Example: "EXPLAIN: Great question! Your EIN is essential for us to properly set up your payment processing, insurance billing, and tax documentation in the system. This ensures everything runs smoothly from day one. So, what is your practice EIN?"
 
-Be warm but clear. If they went off-topic, be friendly but bring them back to the question. Use 0-1 emoji max."""
+REDIRECT: [Acknowledge their input + explain what's specifically needed + re-ask]
+Example: "REDIRECT: I appreciate you sharing that! However, for official records I need your complete legal name (first and last name). This will appear on all your practice documentation. What is your full legal name?"
+
+Be professional yet warm. Explain the 'why' clearly when they ask. Be firm but friendly about needing complete information. Use 0-1 emoji max."""
             
             result = self.llm.invoke(interpretation_prompt)
             result_text = result.content.strip()
@@ -858,6 +848,9 @@ Be warm but clear. If they went off-topic, be friendly but bring them back to th
             if result_text.startswith("UNDERSTOOD:"):
                 paraphrase = result_text.replace("UNDERSTOOD:", "").strip()
                 return True, response.strip(), paraphrase
+            elif result_text.startswith("EXPLAIN:"):
+                explanation = result_text.replace("EXPLAIN:", "").strip()
+                return False, response, explanation
             elif result_text.startswith("REDIRECT:"):
                 redirect = result_text.replace("REDIRECT:", "").strip()
                 return False, response, redirect

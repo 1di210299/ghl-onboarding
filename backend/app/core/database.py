@@ -2,7 +2,7 @@
 Database connection and client management for Supabase.
 """
 
-from supabase import create_client, Client, ClientOptions
+from supabase import create_client, Client
 from app.core.config import settings
 from functools import lru_cache
 from typing import Optional
@@ -25,15 +25,9 @@ class SupabaseClient:
         """Get Supabase client with anon key (for authenticated users with RLS)."""
         if self._anon_client is None:
             logger.info("Initializing Supabase anon client")
-            # Create httpx client with timeout
-            http_client = httpx.Client(timeout=10.0)
             self._anon_client = create_client(
                 settings.supabase_url,
-                settings.supabase_anon_key,
-                options=ClientOptions(
-                    postgrest_client_timeout=10,
-                    storage_client_timeout=10
-                )
+                settings.supabase_anon_key
             )
         return self._anon_client
     
@@ -46,18 +40,10 @@ class SupabaseClient:
             logger.info(f"Service key length: {len(settings.supabase_service_key)}")
             
             try:
-                logger.info("Creating ClientOptions...")
-                options = ClientOptions(
-                    postgrest_client_timeout=10,
-                    storage_client_timeout=10
-                )
-                logger.info("ClientOptions created successfully")
-                
                 logger.info("Calling create_client...")
                 self._service_client = create_client(
                     settings.supabase_url,
-                    settings.supabase_service_key,
-                    options=options
+                    settings.supabase_service_key
                 )
                 logger.info("Supabase client created successfully")
             except Exception as e:
