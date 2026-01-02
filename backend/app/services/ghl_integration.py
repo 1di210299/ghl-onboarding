@@ -22,7 +22,7 @@ class GHLIntegrationService:
         Initialize GHL integration service.
         
         Args:
-            api_key: GHL API key
+            api_key: GHL API key (can be Agency or Location API key)
             location_id: GHL location (sub-account) ID
         """
         self.api_key = api_key
@@ -30,8 +30,16 @@ class GHLIntegrationService:
         self.base_url = "https://rest.gohighlevel.com/v1"
         self.headers = {
             "Authorization": f"Bearer {api_key}",
+            "Version": "2021-07-28",
             "Content-Type": "application/json"
         }
+        
+        # If using Agency API key, add location header
+        # Agency keys typically start with 'eyJh' and are longer
+        # Location keys embed the location_id in the JWT
+        if location_id and len(api_key) > 200:
+            # This is likely an Agency API key, add location header
+            self.headers["locationId"] = location_id
     
     async def get_custom_fields_mapping(self) -> Dict[str, str]:
         """
