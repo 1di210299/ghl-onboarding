@@ -24,7 +24,8 @@ class Settings(BaseSettings):
     # OpenAI
     openai_api_key: str
     openai_model: str = "gpt-4o"
-    openai_temperature: float = 0.7
+    openai_temperature: float = 0.9  # Increased for more natural, creative responses
+    openai_max_tokens: int = 2000  # Increased for longer, more contextual responses
     
     # Supabase
     supabase_url: str

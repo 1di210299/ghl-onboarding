@@ -117,7 +117,8 @@ class OnboardingWorkflow:
         self.llm = ChatOpenAI(
             model=settings.openai_model,
             temperature=settings.openai_temperature,
-            api_key=settings.openai_api_key
+            api_key=settings.openai_api_key,
+            max_tokens=getattr(settings, 'openai_max_tokens', 2000)
         )
         self.graph = self._build_graph()
     
@@ -429,16 +430,33 @@ Return ONLY the conversational question, nothing else."""
             
             state["needs_clarification"] = False
             state["last_validation_error"] = None
+            
+            # If error contains paraphrase (UNDERSTOOD response), add it to messages
+            if error and not error.startswith("ASK_"):
+                # This is a paraphrase/confirmation from AI
+                paraphrase_msg = AIMessage(content=error)
+                state["messages"].append(paraphrase_msg)
+                logger.info(f"Step {step}: Added paraphrase confirmation")
+            
             logger.info(f"Step {step}: Validation successful for {field_name}")
         else:
-            # Need clarification - make error message friendly
-            state["needs_clarification"] = True
-            # Karen's friendly error rephrasing
-            if "I didn't get" in error or "didn't quite" in error:
-                state["last_validation_error"] = error
+            # Check if user is asking "why"
+            if error == "ASK_WHY":
+                state["needs_clarification"] = True
+                # Generate explanation for why we need this info
+                question_text = current_question['text']
+                reason = current_question.get('reason', 'This information helps us understand your practice better and provide personalized support.')
+                
+                why_response = f"""Great question! {reason}
+
+{question_text}"""
+                state["last_validation_error"] = why_response
+                logger.info(f"Step {step}: User asked 'why' - providing reason")
             else:
-                state["last_validation_error"] = f"I {error.lower()}" if not error.startswith("I") else error
-            logger.warning(f"Step {step}: Validation failed - {error}")
+                # Need clarification - use the AI-generated friendly message
+                state["needs_clarification"] = True
+                state["last_validation_error"] = error
+                logger.warning(f"Step {step}: Validation failed - {error}")
         
         return state
     
@@ -798,52 +816,61 @@ Return ONLY the conversational question, nothing else."""
 
     def _ai_validate_text_response(self, question: str, response: str, question_type: str) -> tuple[bool, str, str]:
         """
-        Use AI to validate if a text response appropriately answers the question.
+        Use AI to INTERPRET natural responses and paraphrase understanding.
         
         Returns:
-            (is_valid, cleaned_data, error_message)
+            (is_valid, interpreted_data, paraphrase_or_error)
         """
         try:
+            # Check if user is asking "why" or "what's this for"
+            why_keywords = ['why', 'what for', 'why do you need', 'what is this for', 'para qué', 'por qué', 'para que', 'what is it for', 'why do i need']
+            if any(keyword in response.lower() for keyword in why_keywords):
+                return False, response, "ASK_WHY"  # Special signal
+            
             # Check minimum length
             if len(response.strip()) < 2:
-                return False, response, "Please provide a more detailed answer."
+                return False, response, "Could you tell me a bit more? Even a short answer helps!"
             
-            # Use LLM to validate if response makes sense
-            validation_prompt = f"""You are validating a response to an onboarding question.
+            # Use LLM to INTERPRET the response naturally
+            interpretation_prompt = f"""You are Karen, an AI helping with practice onboarding. You received a natural language response.
 
-Question: {question}
+Question Asked: {question}
 User's Response: {response}
 
-Task: Determine if this response appropriately answers the question.
+Your task:
+1. Interpret what the user is telling you
+2. If the response DOES answer the question (even informally), paraphrase what you understood in a friendly way
+3. If the response does NOT answer the question at all, acknowledge their comment and gently remind them to answer the actual question
 
-Rules:
-1. The response should be relevant to the question
-2. It should contain meaningful information (not just "yes", "no", or gibberish)
-3. For descriptive questions, accept any reasonable answer that addresses the topic
-4. Be lenient - if the user provided something reasonable, accept it
+Format your response as ONE of these:
 
-Respond with ONLY:
-- "VALID" if the response is acceptable
-- "INVALID: [reason]" if the response is not acceptable
+UNDERSTOOD: [Your friendly paraphrase of what they said, showing you got the answer]
+Example: "UNDERSTOOD: Got it! So your practice is called 'Healthy Smiles Dental' - that's a great name! 😊"
 
-Your response:"""
+REDIRECT: [Acknowledge their comment + remind them to answer the question]
+Example: "REDIRECT: I hear you! But I still need to know - {question}"
+
+Be warm but clear. If they went off-topic, be friendly but bring them back to the question. Use 0-1 emoji max."""
             
-            result = self.llm.invoke(validation_prompt)
+            result = self.llm.invoke(interpretation_prompt)
             result_text = result.content.strip()
             
-            if result_text.startswith("VALID"):
-                return True, response.strip(), None
+            if result_text.startswith("UNDERSTOOD:"):
+                paraphrase = result_text.replace("UNDERSTOOD:", "").strip()
+                return True, response.strip(), paraphrase
+            elif result_text.startswith("REDIRECT:"):
+                redirect = result_text.replace("REDIRECT:", "").strip()
+                return False, response, redirect
             else:
-                # Extract reason
-                reason = result_text.replace("INVALID:", "").strip()
-                return False, response, reason or "Please provide a more relevant answer to the question."
+                # Fallback - accept the response
+                return True, response.strip(), f"Got it! {response.strip()}"
                 
         except Exception as e:
-            logger.error(f"AI validation error: {e}")
-            # Fallback to basic validation
+            logger.error(f"AI interpretation error: {e}")
+            # Fallback - be lenient
             if len(response.strip()) >= 2:
-                return True, response.strip(), None
-            return False, response, "Please provide a more detailed answer."
+                return True, response.strip(), f"Thanks for sharing that!"
+            return False, response, "Could you tell me a bit more about that?"
     
     def _ai_validate_boolean(self, response: str) -> tuple[bool, str, str]:
         """
